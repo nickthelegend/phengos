@@ -1,0 +1,13 @@
+{
+  "name": "phengos",
+  "private": true,
+  "description": "Phengos: lights hide behind your real furniture. Catch them by hand, by looking, by voice or with one switch.",
+  "license": "MIT",
+  "scripts": {
+    "test": "npm --prefix packages/core test",
+    "typecheck": "npm --prefix packages/core run typecheck && npm --prefix packages/app run typecheck",
+    "build": "npm --prefix packages/app run build",
+    "fetch:vosk": "./scripts/fetch-vosk-model.sh",
+    "e2e": "node packages/app/e2e/scenarios.mjs"
+  }
+}

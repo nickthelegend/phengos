@@ -37,6 +37,18 @@ export interface CaptionEvent {
 
 const SETTINGS_KEY = 'phengos.settings.v1';
 
+function hasSavedSettings(): boolean {
+  try {
+    if (new URLSearchParams(location.search).has('fresh')) {
+      localStorage.removeItem(SETTINGS_KEY);
+      return false;
+    }
+    return localStorage.getItem(SETTINGS_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -49,8 +61,8 @@ function loadSettings(): Settings {
 export class Store {
   phase: Phase = 'boot';
   settings: Settings = loadSettings();
-  /** True once the first input picked the mode (onboarding done). */
-  modeChosen = false;
+  /** True once the first input picked the mode. Returning players (saved settings) skip onboarding. */
+  modeChosen = hasSavedSettings();
   room: Room | null = null;
   roomInfo: RoomInfo | null = null;
   roomSource: 'scene' | 'paper' | '' = '';

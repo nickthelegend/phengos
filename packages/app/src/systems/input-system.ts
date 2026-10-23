@@ -22,13 +22,15 @@ const ONBOARD_SCAN_AFTER = 4.0;
 interface Held {
   start: number;
   hand: 'left' | 'right' | null;
+  /** The item highlighted when the pinch began: slow pinches still select what you saw. */
+  item: string | null;
 }
 
 export class InputSystem extends createSystem({}) {
   private store!: Store;
   private scanner = new Scanner();
   private held = new Map<XRInputSource, Held>();
-  private pending: Array<{ at: number; start: number; long: boolean; hand: 'left' | 'right' | null }> = [];
+  private pending: Array<{ at: number; start: number; long: boolean; hand: 'left' | 'right' | null; item: string | null }> = [];
   private highlighted: Target | null = null;
   private onboardingSince = -1;
   private longFired = new Set<XRInputSource>();
@@ -38,7 +40,7 @@ export class InputSystem extends createSystem({}) {
     let session: XRSession | null = null;
     const onSelectStart = (e: Event) => {
       const ev = e as XRInputSourceEvent;
-      this.held.set(ev.inputSource, { start: this.store.time, hand: handOf(ev.inputSource) });
+      this.held.set(ev.inputSource, { start: this.store.time, hand: handOf(ev.inputSource), item: this.scanner.current });
       this.store.lastHand = handOf(ev.inputSource);
       globalsOf(this.world).audio?.unlock();
     };
@@ -50,7 +52,7 @@ export class InputSystem extends createSystem({}) {
       if (this.longFired.delete(ev.inputSource)) return;
       const long = this.store.time - h.start >= LONG_PINCH;
       // Decide two frames later, after ray presses and UI clicks have landed.
-      this.pending.push({ at: this.store.time + 0.05, start: h.start, long, hand: h.hand });
+      this.pending.push({ at: this.store.time + 0.05, start: h.start, long, hand: h.hand, item: h.item });
     };
     const onStart = () => {
       session = this.xrManager.getSession();
@@ -122,7 +124,8 @@ export class InputSystem extends createSystem({}) {
       this.pending.splice(i, 1);
       if (s.pinchConsumedAt >= p.start) continue; // a ray press or click already used this pinch
       if (!scanning || p.long) continue;
-      const target = this.scanner.current ? (s.lightTargets.get(this.scanner.current) ?? s.controlTargets.get(this.scanner.current)) : null;
+      const id = p.item ?? this.scanner.current;
+      const target = id ? (s.lightTargets.get(id) ?? s.controlTargets.get(id)) : null;
       if (target) {
         target.activate('switch');
         this.scanner.hold();

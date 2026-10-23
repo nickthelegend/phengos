@@ -409,7 +409,8 @@ export class GameSystem extends createSystem({
     // Phase machine.
     if (s.phase === 'room' && s.roomInfo) {
       this.refreshStars();
-      if (s.modeChosen) this.startRound(0);
+      const startAt = Math.min(NIGHT_ROUNDS.length - 1, Math.max(0, Number(new URLSearchParams(location.search).get('round') ?? 0) || 0));
+      if (s.modeChosen) this.startRound(startAt);
       else this.startOnboarding();
     } else if (s.phase === 'onboarding' && s.round?.done && this.allLanded()) {
       this.clearLights();

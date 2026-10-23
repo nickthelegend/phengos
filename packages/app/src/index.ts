@@ -24,6 +24,8 @@ World.create(document.getElementById('scene-container') as HTMLDivElement, proje
   .then((world) => {
     const store = new Store();
     world.globals[STORE_KEY] = store;
+    // Read-only inspection handle for the e2e scripts (room capture, perf report).
+    (window as unknown as { __phengos: object }).__phengos = { store, world };
     world.registerSystem(PerfBeginSystem, { priority: -1_000_000 });
     world.registerSystem(DepthSensingSystem, {
       configData: { enableDepthTexture: true, enableOcclusion: true, useFloat32: true, blurRadius: 20 },

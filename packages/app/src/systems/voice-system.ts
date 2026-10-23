@@ -106,7 +106,22 @@ export class VoiceSystem extends createSystem({}) {
     });
     rec.on('error', (m) => console.warn('[phengos] recogniser error', m?.error));
     this.store.voiceStatus = 'listening';
-    if (this.fixture) await this.feedFixture(rec, this.fixture);
+    // Voice is on: close the menu so you can try it straight away.
+    const c = globalsOf(this.world).controller;
+    if (this.store.menuOpen) c?.resume();
+    this.store.say('Voice on. Try "catch" or "hint".', 'o', 4);
+    if (this.fixture) {
+      const q = new URLSearchParams(location.search);
+      if (q.has('voiceFixtureGate')) {
+        // Recording choreography: wait until the script says "now".
+        this.store.voiceStatus = 'listening (test recording ready)';
+        await new Promise((r) => window.addEventListener('phengos:feed-fixture', r, { once: true }));
+      } else {
+        const delay = Number(q.get('voiceFixtureDelay') ?? '1');
+        await new Promise((r) => setTimeout(r, Math.max(0, delay) * 1000));
+      }
+      await this.feedFixture(rec, this.fixture);
+    }
     else this.listen(rec);
   }
 

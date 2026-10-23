@@ -451,7 +451,7 @@ export class GameSystem extends createSystem({
         rt.visual.halo.scale.setScalar((hc ? 0.32 : 0.48) * pulse);
         rt.visual.lantern.scale.setScalar(hc ? 1.5 : 1);
       }
-      root.visible = !hidden || rt.flight !== null;
+      root.visible = rt.flight ? rt.flight.stage !== 'done' : !hidden;
     }
 
     // Hover feedback for hand rays; voice outline; hint chevron.

@@ -1,0 +1,53 @@
+<!--
+  The two tabs that stay at the bottom of the view: Hint and Pause. Each can be
+  pinched on the hand ray, poked, dwelled on with Look, reached by the switch
+  scanner, or spoken ("hint", "pause").
+-->
+<style>
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-SemiBold.ttf); font-weight: 600; }
+  .tabs {
+    flex-direction: row;
+    gap: 18;
+    font-family: lexend;
+  }
+  .tab {
+    flex-direction: row;
+    align-items: center;
+    gap: 10;
+    padding-top: 14;
+    padding-bottom: 14;
+    padding-left: 22;
+    padding-right: 26;
+    border-radius: 30;
+    background-color: #050608;
+    border-width: 3;
+    border-color: #3a3e46;
+    cursor: pointer;
+  }
+  .tab:hover {
+    border-color: #3d8bff;
+  }
+  .tab:active {
+    background-color: #12161c;
+  }
+  .icon {
+    width: 30;
+    height: 30;
+    color: #e6ff4f;
+  }
+  .label {
+    font-size: 26;
+    font-weight: 600;
+    color: #fafafa;
+  }
+</style>
+<div class="tabs">
+  <div id="tab-hint" class="tab">
+    <Lightbulb class="icon"></Lightbulb>
+    <span class="label">Hint</span>
+  </div>
+  <div id="tab-pause" class="tab">
+    <Pause class="icon"></Pause>
+    <span class="label">Pause</span>
+  </div>
+</div>

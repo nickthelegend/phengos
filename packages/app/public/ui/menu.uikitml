@@ -1,0 +1,168 @@
+<!--
+  Settings, all on the first screen: way to play, dwell time, scan speed, text
+  size, hum, contrast, sound-only play and voice. Every control works with a
+  hand-ray pinch, a poke, a Look dwell, the switch scanner, or voice ("resume").
+-->
+<style>
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-Regular.ttf); font-weight: 400; }
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-SemiBold.ttf); font-weight: 600; }
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-Bold.ttf); font-weight: 700; }
+  @font-face { font-family: ptmono; src: url(../fonts/PTMono-Regular.ttf); font-weight: 400; }
+  .menu {
+    flex-direction: column;
+    gap: 14;
+    width: 720;
+    padding-top: 26;
+    padding-bottom: 26;
+    padding-left: 30;
+    padding-right: 30;
+    border-radius: 34;
+    background-color: #050608;
+    border-width: 2;
+    border-color: #2a2d33;
+    font-family: lexend;
+  }
+  .head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .title {
+    font-size: 38;
+    font-weight: 700;
+    color: #fafafa;
+  }
+  .row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12;
+  }
+  .name {
+    font-size: 26;
+    color: #d9dbe0;
+    width: 200;
+  }
+  .group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10;
+  }
+  .btn {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8;
+    height: 64;
+    padding-left: 20;
+    padding-right: 20;
+    border-radius: 20;
+    background-color: #0e1116;
+    border-width: 3;
+    border-color: #2a2d33;
+    cursor: pointer;
+  }
+  .btn:hover {
+    border-color: #3d8bff;
+  }
+  .btn:active {
+    background-color: #1a2029;
+  }
+  .square {
+    width: 64;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .label {
+    font-size: 24;
+    font-weight: 600;
+    color: #fafafa;
+  }
+  .value {
+    font-family: ptmono;
+    font-size: 26;
+    color: #e6ff4f;
+    width: 110;
+    text-align: center;
+  }
+  .icon {
+    width: 28;
+    height: 28;
+    color: #fafafa;
+  }
+  .primary {
+    background-color: #e6ff4f;
+    border-color: #e6ff4f;
+  }
+  .primary-label {
+    font-size: 28;
+    font-weight: 700;
+    color: #050608;
+  }
+  .note {
+    font-family: ptmono;
+    font-size: 20;
+    color: #9fa4ad;
+  }
+</style>
+<div class="menu">
+  <div class="head">
+    <span class="title">Paused</span>
+    <div id="menu-resume" class="btn primary">
+      <Play class="icon" style="color: #050608"></Play>
+      <span class="primary-label">Resume</span>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Play by</span>
+    <div class="group">
+      <div id="mode-point" class="btn"><span class="label">Point</span></div>
+      <div id="mode-look" class="btn"><span id="mode-look-label" class="label">Look (head)</span></div>
+      <div id="mode-switch" class="btn"><span class="label">Switch</span></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Dwell</span>
+    <div class="group">
+      <div id="dwell-dec" class="btn square"><Minus class="icon"></Minus></div>
+      <span id="dwell-val" class="value">1.0 s</span>
+      <div id="dwell-inc" class="btn square"><Plus class="icon"></Plus></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Scan speed</span>
+    <div class="group">
+      <div id="scan-dec" class="btn square"><Minus class="icon"></Minus></div>
+      <span id="scan-val" class="value">1.5 s</span>
+      <div id="scan-inc" class="btn square"><Plus class="icon"></Plus></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Text size</span>
+    <div class="group">
+      <div id="text-dec" class="btn square"><Minus class="icon"></Minus></div>
+      <span id="text-val" class="value">100%</span>
+      <div id="text-inc" class="btn square"><Plus class="icon"></Plus></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Sound</span>
+    <div class="group">
+      <div id="hum-toggle" class="btn"><Volume2 class="icon"></Volume2><span id="hum-label" class="label">Hum on</span></div>
+      <div id="soundonly-toggle" class="btn"><Ear class="icon"></Ear><span id="soundonly-label" class="label">Sound only: off</span></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Contrast</span>
+    <div class="group">
+      <div id="contrast-toggle" class="btn"><Contrast class="icon"></Contrast><span id="contrast-label" class="label">High contrast: off</span></div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="name">Voice</span>
+    <div class="group">
+      <div id="voice-toggle" class="btn"><Mic class="icon"></Mic><span id="voice-label" class="label">Turn on voice</span></div>
+    </div>
+  </div>
+  <span id="voice-status" class="note">Voice is optional. Nothing is recorded or sent.</span>
+</div>

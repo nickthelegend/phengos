@@ -1,15 +1,55 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#050608" />
     <link rel="icon" href="data:," />
-    <title>app</title>
+    <title>Phengos</title>
+    <style>
+      @font-face { font-family: Lexend; src: url(./fonts/Lexend-Regular.ttf); font-weight: 400; }
+      @font-face { font-family: Lexend; src: url(./fonts/Lexend-Bold.ttf); font-weight: 700; }
+      @font-face { font-family: PTMono; src: url(./fonts/PTMono-Regular.ttf); }
+      :root { color-scheme: dark; }
+      html, body { margin: 0; background: #050608; color: #fafafa; font-family: Lexend, system-ui, sans-serif; }
+      #start {
+        position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px;
+        background: #050608; overflow-y: auto;
+      }
+      #start[hidden] { display: none; }
+      .sign { max-width: 560px; width: 100%; border: 3px solid #fafafa; border-radius: 20px; padding: 28px 24px; box-sizing: border-box; }
+      .eyebrow { font-family: PTMono, monospace; color: #e6ff4f; letter-spacing: 0.18em; font-size: 0.95rem; margin: 0; }
+      h1 { font-size: clamp(2.2rem, 8vw, 3.4rem); margin: 8px 0 6px; }
+      p { font-size: 1.15rem; line-height: 1.6; margin: 0 0 14px; color: #e8e9ec; }
+      ul { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 8px; }
+      li { font-size: 1.05rem; padding: 10px 14px; border: 2px solid #2a2d33; border-radius: 12px; }
+      li b { color: #e6ff4f; font-weight: 700; }
+      button {
+        font: inherit; font-size: 1.3rem; font-weight: 700; width: 100%; padding: 16px 20px; border-radius: 14px;
+        border: 3px solid #e6ff4f; background: #e6ff4f; color: #050608; cursor: pointer;
+      }
+      button:disabled { opacity: 0.5; cursor: progress; }
+      button:focus-visible { outline: 4px solid #3d8bff; outline-offset: 3px; }
+      #status { font-family: PTMono, monospace; font-size: 0.95rem; color: #c9ccd2; margin-top: 14px; }
+    </style>
   </head>
-  <body style="margin: 0">
+  <body>
+    <div id="start">
+      <main class="sign">
+        <p class="eyebrow">PHENGOS / A GAME OF HIDING LIGHTS</p>
+        <h1>Catch the light</h1>
+        <p>Small paper lights hide behind your real furniture. Every way to play is a full way to play.</p>
+        <ul>
+          <li><b>Point</b> with your hand ray and pinch</li>
+          <li><b>Look</b> and hold (head on Quest, eyes on Meta VR Glasses)</li>
+          <li><b>One switch</b>: any pinch catches the outlined light</li>
+          <li><b>Voice</b>, optional: "catch", "next", "hint"</li>
+          <li><b>Listen</b>: each light hums from where it hides</li>
+        </ul>
+        <button id="enter" type="button" disabled>Enter your room</button>
+        <p id="status" role="status">Seated is fine. Nothing to reach for.</p>
+      </main>
+    </div>
     <div id="scene-container"></div>
     <script type="module" src="/src/index.ts"></script>
   </body>

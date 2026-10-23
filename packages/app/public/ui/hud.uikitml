@@ -1,0 +1,73 @@
+<!--
+  Phengos HUD: count, the current caption (every sound has one, with a direction
+  arrow), the voice transcript chip and the active "way to play".
+  Night #050608, white #fafafa, firefly #e6ff4f. Lexend + PT Mono (OFL).
+-->
+<style>
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-Regular.ttf); font-weight: 400; }
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-SemiBold.ttf); font-weight: 600; }
+  @font-face { font-family: ptmono; src: url(../fonts/PTMono-Regular.ttf); font-weight: 400; }
+
+  .hud {
+    flex-direction: column;
+    align-items: center;
+    gap: 10;
+    width: 520;
+    font-family: lexend;
+  }
+  .row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12;
+  }
+  .chip {
+    flex-direction: row;
+    align-items: center;
+    gap: 10;
+    padding-top: 10;
+    padding-bottom: 10;
+    padding-left: 18;
+    padding-right: 18;
+    border-radius: 22;
+    background-color: #050608;
+    border-width: 2;
+    border-color: #2a2d33;
+  }
+  .count {
+    font-family: ptmono;
+    font-size: 30;
+    color: #e6ff4f;
+  }
+  .mode {
+    font-size: 22;
+    font-weight: 600;
+    color: #fafafa;
+  }
+  .caption {
+    font-size: 26;
+    color: #fafafa;
+  }
+  .arrow {
+    font-family: ptmono;
+    font-size: 30;
+    color: #e6ff4f;
+  }
+  .heard {
+    font-family: ptmono;
+    font-size: 22;
+    color: #9fd0ff;
+  }
+</style>
+<div class="hud">
+  <div class="row">
+    <div class="chip"><span id="hud-count" class="count">0 / 0</span></div>
+    <div class="chip"><span id="hud-mode" class="mode">Point (hands)</span></div>
+  </div>
+  <div id="hud-caption-chip" class="chip">
+    <span id="hud-arrow" class="arrow">o</span>
+    <span id="hud-caption" class="caption">Finding your room</span>
+  </div>
+  <div id="hud-voice-chip" class="chip" style="display: none">
+    <span id="hud-heard" class="heard">voice: listening</span>
+  </div>
+</div>

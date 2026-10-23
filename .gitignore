@@ -7,3 +7,4 @@ coverage/
 .env.*
 .iwsdk/
 e2e/out/
+packages/app/public/models/

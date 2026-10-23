@@ -1,0 +1,85 @@
+<!--
+  Start and round-end card. No text wall: a title, one line, and three
+  pictogram tiles for the ways to play. The first way you use is the one the
+  game keeps teaching; the others stay one pictogram away.
+-->
+<style>
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-Regular.ttf); font-weight: 400; }
+  @font-face { font-family: lexend; src: url(../fonts/Lexend-Bold.ttf); font-weight: 700; }
+  @font-face { font-family: ptmono; src: url(../fonts/PTMono-Regular.ttf); font-weight: 400; }
+  .card {
+    flex-direction: column;
+    align-items: center;
+    gap: 16;
+    width: 640;
+    padding-top: 26;
+    padding-bottom: 28;
+    padding-left: 30;
+    padding-right: 30;
+    border-radius: 34;
+    background-color: #050608;
+    border-width: 2;
+    border-color: #2a2d33;
+    font-family: lexend;
+  }
+  .eyebrow {
+    font-family: ptmono;
+    font-size: 20;
+    letter-spacing: 3;
+    color: #e6ff4f;
+  }
+  .title {
+    font-size: 44;
+    font-weight: 700;
+    color: #fafafa;
+  }
+  .body {
+    font-size: 26;
+    color: #d9dbe0;
+    text-align: center;
+  }
+  .tiles {
+    flex-direction: row;
+    gap: 14;
+  }
+  .tile {
+    flex-direction: column;
+    align-items: center;
+    gap: 8;
+    width: 180;
+    padding-top: 16;
+    padding-bottom: 16;
+    border-radius: 22;
+    background-color: #0e1116;
+    border-width: 3;
+    border-color: #2a2d33;
+  }
+  .glyph {
+    width: 44;
+    height: 44;
+    color: #e6ff4f;
+  }
+  .tile-label {
+    font-size: 22;
+    color: #fafafa;
+  }
+</style>
+<div class="card">
+  <span id="card-eyebrow" class="eyebrow">PHENGOS</span>
+  <span id="card-title" class="title">Catch the light</span>
+  <span id="card-body" class="body">Any way works. The first one you use, we keep.</span>
+  <div id="card-tiles" class="tiles">
+    <div id="tile-point" class="tile">
+      <Pointer class="glyph"></Pointer>
+      <span class="tile-label">Point, pinch</span>
+    </div>
+    <div id="tile-look" class="tile">
+      <Eye class="glyph"></Eye>
+      <span id="tile-look-label" class="tile-label">Look, hold</span>
+    </div>
+    <div id="tile-switch" class="tile">
+      <ToggleRight class="glyph"></ToggleRight>
+      <span class="tile-label">Pinch anytime</span>
+    </div>
+  </div>
+</div>

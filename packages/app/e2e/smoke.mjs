@@ -1,0 +1,11 @@
+import { cli, enterXR, goto, state, sleep, consoleErrors, inPage } from './lib.mjs';
+goto('?fresh&dumpRoom');
+enterXR();
+cli('xr set-input-mode', { mode: 'hand' });
+cli('xr set-transform', { device: 'headset', position: { x: 0, y: 1.15, z: 0.2 }, orientation: { x: 0, y: 0, z: 0, w: 1 } });
+await sleep(5000);
+const s = state();
+console.log(JSON.stringify({ phase: s.phase, roomSource: s.roomSource, lights: s.lights, controls: s.controls, caption: s.caption, gaze: s.gazeAvailable }, null, 1).slice(0, 2500));
+const logs = cli('browser logs', { count: 60 });
+const list = logs.logs ?? logs.entries ?? logs.result ?? [];
+console.log(JSON.stringify(Array.isArray(list) ? list.map((l) => `${l.level ?? l.type}: ${String(l.text ?? l.message).slice(0, 300)}`) : Object.keys(logs)).slice(0, 4000));

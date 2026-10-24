@@ -33,10 +33,18 @@ packages/core     pure TypeScript game logic + Vitest (room model, hiding spots,
 packages/app      the IWSDK app (systems in src/systems, UIKitML panels in public/ui, e2e in e2e/)
 packages/landing  one-page site in the brand (wayfinding signage), plays the real emulator clip with captions
 scripts/          fetch-vosk-model.sh (downloads + checks + repacks the Vosk model)
-TESTING.md        real test counts and emulator gates
+TESTING.md        real test counts and emulator gates (84 unit tests, 46 emulator checks, M1 numbers)
+e2e/results/      JSON results and screenshots from the emulator run
 ASSETS.md         every asset and licence
 HACKATHON_SUBMISSION_FORM.md
 ```
+
+## Emulator clips
+
+Test recordings from the Meta Immersive Web Emulator (real frames, captions overlaid), in `grokbot/videos/phengos/`:
+`phengos-whoa.mp4` (31 s: look, pinch and voice catch three lights, then high contrast), `phengos-switch.mp4` (30 s:
+one-switch scanning from onboarding), `phengos-glasses.mp4` (24 s: Meta VR Glasses profile, eye gaze + pinch).
+The landing page plays the whoa clip with a captions track.
 
 ## Run it
 

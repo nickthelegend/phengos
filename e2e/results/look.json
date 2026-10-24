@@ -1,0 +1,33 @@
+{
+  "scenario": "look",
+  "seconds": 25.584,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "onboarding: holding a look picks Look mode, labelled head-gaze",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "control: a 0.8 s look does not catch (dwell 1.0 s)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "head-gaze only: round of 5 completed with no hand input",
+      "ok": true,
+      "detail": "{\"caught\":5,\"phase\":\"playing\"}"
+    },
+    {
+      "name": "every catch recorded as look",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

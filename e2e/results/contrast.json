@@ -1,0 +1,33 @@
+{
+  "scenario": "contrast",
+  "seconds": 24.589,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "Pause tab (hand ray + pinch) opens the menu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "contrast toggle -> yellow on black",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ECS GameState.contrast == yellow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "runtime screenshot captured (e2e/out/contrast-yellow.png)",
+      "ok": true,
+      "detail": "../../e2e/out/contrast-yellow.png"
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

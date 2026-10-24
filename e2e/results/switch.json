@@ -1,0 +1,38 @@
+{
+  "scenario": "switch",
+  "seconds": 21.049,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "onboarding: the scanner starts by itself after 4 quiet seconds",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "onboarding: a pinch while scanning picks One switch mode",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "switch only: round of 5 completed with pinches only",
+      "ok": true,
+      "detail": "{\"caught\":5,\"presses\":5}"
+    },
+    {
+      "name": "every catch recorded as switch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "long pinch (1 s) opens the menu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

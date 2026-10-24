@@ -1,0 +1,11 @@
+{
+  "frames": 632,
+  "window": 600,
+  "cpuP50": 1.1,
+  "cpuP95": 1.4,
+  "cpuMax": 2,
+  "drawCallsMax": 86,
+  "drawCallsP95": 86,
+  "trianglesMax": 21092,
+  "note": "relative proxy (desktop Chrome + IWER), unverified on hardware"
+}

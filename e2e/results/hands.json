@@ -1,0 +1,43 @@
+{
+  "scenario": "hands",
+  "seconds": 19.036,
+  "passed": 7,
+  "failed": 0,
+  "results": [
+    {
+      "name": "cold load reaches onboarding (room from scene understanding)",
+      "ok": true,
+      "detail": "scene"
+    },
+    {
+      "name": "onboarding: first input (hand ray + pinch) picks Point mode",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "round 1 hides 5 lights",
+      "ok": true,
+      "detail": "kinds: behind@couch, behind@lamp, behind@table, behind@lamp, behind@shelf"
+    },
+    {
+      "name": "ray pinches needed: 5 for 5 lights",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ECS GameState.caught == 5 after hands-only round",
+      "ok": true,
+      "detail": "{\"caught\":5,\"total\":5,\"methods\":\"point\"}"
+    },
+    {
+      "name": "every catch recorded as point",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

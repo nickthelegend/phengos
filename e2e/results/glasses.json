@@ -1,0 +1,43 @@
+{
+  "scenario": "glasses",
+  "seconds": 18.427,
+  "passed": 7,
+  "failed": 0,
+  "results": [
+    {
+      "name": "device profile is Meta VR Glasses",
+      "ok": true,
+      "detail": "Meta VR Glasses"
+    },
+    {
+      "name": "gaze-tracking granted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Look is labelled eyes on the Glasses",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "eye gaze + pinch caught the first light (method eyes)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Glasses: round of 5 completed with eye gaze + pinch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "HUD and tabs inside the Glasses FoV (with 3 deg margin)",
+      "ok": true,
+      "detail": "{\"hud\":{\"h\":0.6500720783349407,\"v\":-17.445463596887596},\"tabs\":{\"h\":0.63917165209251,\"v\":-27.327313906847177}}"
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

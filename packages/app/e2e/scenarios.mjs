@@ -205,7 +205,7 @@ const scenarios = {
     await sleep(300);
     cli('xr select', { device: 'hand-right', duration: 0.15 });
     s = await waitFor((x) => x.phase === 'playing', { label: 'round after gaze+pinch onboarding' });
-    check(r, 'eye gaze + pinch caught the first light (method eyes)', s.lastCatchMethod === 'eyes' || state().lights.length > 0);
+    check(r, 'eye gaze + pinch caught the first light (method eyes)', s.lastCatchMethod === 'eyes');
     for (const l of s.lights) {
       cli('xr look-at', { device: 'headset', target: l.p });
       cli('xr look-at', { device: 'gaze', target: l.p });
@@ -236,6 +236,37 @@ const scenarios = {
     cli('browser screenshot --output-file ../../e2e/out/glasses-fov.png', {}, { timeout: 60_000 });
     const errs = consoleErrors(bootAt);
     check(r, 'zero console errors', errs.length === 0, errs.slice(0, 3).map((e) => e.text ?? e.message).join(' | '));
+  },
+
+  async glassesdwell(r) {
+    // Look (eyes): dwell with the eye-gaze ray, no pinch at all.
+    try { cli('xr exit', {}); } catch {}
+    goto('');
+    inPage(`async (page) => page.evaluate(() => localStorage.setItem('phengos.settings.v1', JSON.stringify({ mode: 'look' })))`);
+    goto('');
+    enterXR();
+    cli('xr set-input-mode', { mode: 'hand' });
+    cli('xr set-transform', { device: 'headset', position: SEATED, orientation: { x: 0, y: 0, z: 0, w: 1 } });
+    let s = await waitFor((x) => x.phase === 'playing' && x.gazeAvailable, { timeout: 40_000, label: 'playing with gaze' });
+    restHand('left');
+    restHand('right');
+    for (const l of s.lights) {
+      cli('ecs pause', {});
+      try {
+        cli('xr look-at', { device: 'headset', target: { x: l.p.x, y: l.p.y, z: l.p.z } });
+        cli('xr look-at', { device: 'gaze', target: { x: l.p.x, y: l.p.y, z: l.p.z } });
+        sleepSync(150);
+        cli('ecs step', { count: 80, delta: 1 / 72 });
+        cli('xr look-at', { device: 'gaze', target: AWAY });
+        sleepSync(150);
+        cli('ecs step', { count: 3, delta: 1 / 72 });
+      } finally {
+        cli('ecs resume', {});
+      }
+    }
+    s = await waitFor((x) => x.lights.every((l) => l.caught), { timeout: 10_000, label: 'all caught by eye dwell' });
+    check(r, 'Look (eyes): round of 5 by eye-gaze dwell, no pinch', s.lights.every((l) => l.method === 'eyes'));
+    inPage(`async (page) => page.evaluate(() => localStorage.removeItem('phengos.settings.v1'))`);
   },
 
   async voice(r) {

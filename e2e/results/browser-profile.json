@@ -1,0 +1,107 @@
+{
+  "ok": true,
+  "data": {
+    "workspaceRoot": "/Volumes/Extreme SSD/Projects/grokbot/projects/phengos/packages/app",
+    "operation": "browser.profile",
+    "result": {
+      "application": {
+        "generation": 8,
+        "id": "tab-mvlrbxh3-18bj17",
+        "outerUrl": "https://localhost:8081/",
+        "url": "https://localhost:8081/?fresh&round=2",
+        "workspaceFramed": true
+      },
+      "calibrated": false,
+      "classification": "host-browser-diagnostic",
+      "durationMs": 12015,
+      "droppedInterruptionCount": 0,
+      "interruptions": [
+        {
+          "at": 1792807773820,
+          "kind": "timeout-requested"
+        },
+        {
+          "at": 1792807773820,
+          "kind": "timeout"
+        }
+      ],
+      "mode": "rendering",
+      "profileId": "242fed88-9546-4b96-a33a-f56d77d83c70",
+      "status": "stopped",
+      "targetDevice": null,
+      "environment": {
+        "devicePixelRatio": 1,
+        "gpuRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+        "gpuVendor": "Google Inc. (Apple)",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/33.0.0.x.x.x Chrome/126.0.6478.122 VR Safari/537.36"
+      },
+      "summary": {
+        "browserMetrics": {
+          "Timestamp": 252547.100219,
+          "AudioHandlers": 160,
+          "AudioWorkletProcessors": 0,
+          "Documents": 37,
+          "Frames": 4,
+          "JSEventListeners": 16503,
+          "LayoutObjects": 150,
+          "MediaKeySessions": 0,
+          "MediaKeys": 0,
+          "Nodes": 1510,
+          "Resources": 445,
+          "ContextLifecycleStateObservers": 349,
+          "V8PerContextDatas": 389,
+          "WorkerGlobalScopes": 0,
+          "UACSSResources": 0,
+          "RTCPeerConnections": 0,
+          "ResourceFetchers": 37,
+          "AdSubframes": 0,
+          "DetachedScriptStates": 161,
+          "ArrayBufferContents": 9906,
+          "LayoutCount": 2,
+          "RecalcStyleCount": 5,
+          "LayoutDuration": 0.000102,
+          "RecalcStyleDuration": 0.000481,
+          "DevToolsCommandDuration": 0.00959,
+          "ScriptDuration": 4.971822,
+          "V8CompileDuration": 0,
+          "TaskDuration": 5.139006,
+          "TaskOtherDuration": 0.157011,
+          "ThreadTime": 2.49633,
+          "ProcessTime": 80.521499,
+          "JSHeapUsedSize": 468052980,
+          "JSHeapTotalSize": 546095104,
+          "FirstMeaningfulPaint": 252331.365912,
+          "DomContentLoaded": 252329.792754,
+          "NavigationStart": 252329.524868
+        },
+        "collection": {
+          "eventTiming": false,
+          "frameTiming": true,
+          "trace": false
+        },
+        "eventTiming": {
+          "count": 0,
+          "maxDurationMs": null
+        },
+        "frameTimeMs": {
+          "droppedFrameCount": 0,
+          "max": 16.80000000000291,
+          "p50": 16.69999999999709,
+          "p95": 16.700000000004366,
+          "sampleCount": 720,
+          "source": "requestAnimationFrame-interval"
+        },
+        "longTasks": {
+          "count": 7,
+          "totalDurationMs": 1573
+        },
+        "marks": [
+          {
+            "name": "iwsdk-browser-profile-rendering-start",
+            "startTime": 28844
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "scenario": "voice",
+  "seconds": 25.891,
+  "passed": 4,
+  "failed": 0,
+  "results": [
+    {
+      "name": "real Vosk recogniser heard the recorded \"catch\" and \"next\"",
+      "ok": true,
+      "detail": "\"catch next\" -> catch next"
+    },
+    {
+      "name": "\"catch\" caught a light by voice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "\"next\" outlined the next light",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "zero console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

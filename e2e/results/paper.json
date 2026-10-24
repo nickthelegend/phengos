@@ -1,0 +1,23 @@
+{
+  "scenario": "paper",
+  "seconds": 17.204,
+  "passed": 3,
+  "failed": 0,
+  "results": [
+    {
+      "name": "paper-room fallback builds a room",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "paper room hides 5 lights",
+      "ok": true,
+      "detail": "behind@screen, behind@screen, behind@screen, behind@screen, behind@screen"
+    },
+    {
+      "name": "paper room round completes",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "scenario": "voice-missing",
+  "passed": 2,
+  "failed": 0,
+  "results": [
+    {
+      "name": "missing model -> \"Voice unavailable on this device\"",
+      "ok": true,
+      "detail": "Voice unavailable on this device"
+    },
+    {
+      "name": "play continues by hand after voice failed",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "scenario": "perf",
+  "seconds": 20.266,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "600-frame run recorded (632 frames)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "p95 CPU <= 4 ms (relative proxy): 1.4 ms",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "draw calls per stereo frame <= 100 (shared M1 gate): max 86",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "draw calls per eye view <= 70 (spec gate): 43",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "triangles <= 120k: max 21092",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "DepthOccludable only on the 12 lights",
+      "ok": true,
+      "detail": "12 entities"
+    }
+  ]
+}

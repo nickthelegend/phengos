@@ -42,6 +42,8 @@ export class InputSystem extends createSystem({}) {
       const ev = e as XRInputSourceEvent;
       this.held.set(ev.inputSource, { start: this.store.time, hand: handOf(ev.inputSource), item: this.scanner.current });
       this.store.lastHand = handOf(ev.inputSource);
+      // Hand rays drift while a pinch closes: catch what the ray was on.
+      if (!this.scanning()) this.controller?.catchHovered(handOf(ev.inputSource));
       globalsOf(this.world).audio?.unlock();
     };
     const onSelectEnd = (e: Event) => {

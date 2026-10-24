@@ -13,6 +13,7 @@
  * real recogniser (used by the voice test).
  */
 import { createSystem } from '@iwsdk/core';
+import { TestSignal } from '../components.js';
 import { type VoiceCommand, parseVoice, VOSK_GRAMMAR } from '@phengos/core';
 import workerUrl from '@lichess-org/vosk-browser/dist/vosk.worker.js?url';
 import wasmUrl from '@lichess-org/vosk-browser/dist/vosk.wasm?url';
@@ -29,7 +30,7 @@ type Recognizer = {
   remove(): void;
 };
 
-export class VoiceSystem extends createSystem({}) {
+export class VoiceSystem extends createSystem({ signals: { required: [TestSignal] } }) {
   private store!: Store;
   private client: { terminate(): void; KaldiRecognizer: new (rate: number, grammar?: string) => Recognizer } | null = null;
   private recognizer: Recognizer | null = null;
@@ -82,11 +83,13 @@ export class VoiceSystem extends createSystem({}) {
         video: false,
       });
     }
-    const head = await fetch(MODEL_URL, { method: 'HEAD' });
-    if (!head.ok) throw new Error(`model missing (${head.status}) at ${MODEL_URL}`);
     const { createVoskClient } = await import('@lichess-org/vosk-browser');
     const t0 = performance.now();
-    const client = (await createVoskClient({ modelUrl: new URL(MODEL_URL, location.href).href, workerUrl, wasmUrl, logLevel: -1 })) as unknown as NonNullable<typeof this.client>;
+    // The model is about 40 MB: give it a minute, then say voice is unavailable.
+    const client = (await Promise.race([
+      createVoskClient({ modelUrl: new URL(MODEL_URL, location.href).href, workerUrl, wasmUrl, logLevel: -1 }),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('model load timed out')), 60_000)),
+    ])) as unknown as NonNullable<typeof this.client>;
     this.client = client;
     console.info(`[phengos] vosk model ready in ${Math.round(performance.now() - t0)} ms`);
     const rec = new client.KaldiRecognizer(16000, VOSK_GRAMMAR);
@@ -115,7 +118,12 @@ export class VoiceSystem extends createSystem({}) {
       if (q.has('voiceFixtureGate')) {
         // Recording choreography: wait until the script says "now".
         this.store.voiceStatus = 'listening (test recording ready)';
-        await new Promise((r) => window.addEventListener('phengos:feed-fixture', r, { once: true }));
+        const signal = this.world.createEntity();
+        signal.addComponent(TestSignal, {});
+        await new Promise<void>((resolve) => {
+          const poll = () => (signal.getValue(TestSignal, 'feedVoiceFixture') ? resolve() : setTimeout(poll, 50));
+          poll();
+        });
       } else {
         const delay = Number(q.get('voiceFixtureDelay') ?? '1');
         await new Promise((r) => setTimeout(r, Math.max(0, delay) * 1000));

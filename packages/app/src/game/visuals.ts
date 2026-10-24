@@ -15,7 +15,6 @@ import {
   Color,
   DoubleSide,
   Group,
-  LatheGeometry,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -23,7 +22,6 @@ import {
   PointsMaterial,
   RingGeometry,
   SRGBColorSpace,
-  Vector2,
 } from '@iwsdk/core';
 
 export const COLORS = {
@@ -44,28 +42,6 @@ function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContex
   return [c, ctx];
 }
 
-/** Washi paper with vertical ribs and a warm centre. */
-function paperTexture(): CanvasTexture {
-  const [c, g] = canvas(256, 128);
-  const grad = g.createLinearGradient(0, 0, 0, 128);
-  grad.addColorStop(0, '#ffb35a');
-  grad.addColorStop(0.5, '#fff1cf');
-  grad.addColorStop(1, '#ffa94a');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 256, 128);
-  g.globalAlpha = 0.28;
-  g.fillStyle = '#b4641c';
-  for (let x = 0; x < 256; x += 32) g.fillRect(x, 0, 3, 128);
-  g.globalAlpha = 0.08;
-  for (let i = 0; i < 400; i++) {
-    g.fillStyle = i % 2 ? '#ffffff' : '#c27a2c';
-    g.fillRect((i * 97) % 256, (i * 57) % 128, 2, 1);
-  }
-  const t = new CanvasTexture(c);
-  t.colorSpace = SRGBColorSpace;
-  return t;
-}
-
 function radialTexture(stops: Array<[number, string]>): CanvasTexture {
   const [c, g] = canvas(128, 128);
   const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -77,41 +53,62 @@ function radialTexture(stops: Array<[number, string]>): CanvasTexture {
   return t;
 }
 
+/**
+ * One light is ONE billboard: a paper lantern painted into its own warm glow.
+ * Twelve lights cost twelve draw calls, and the quad's depth still lets the
+ * real couch hide the light (hard depth occlusion per fragment).
+ */
+function lanternGlowTexture(): CanvasTexture {
+  const [c, g] = canvas(256, 256);
+  const glow = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  glow.addColorStop(0, 'rgba(255,240,200,1)');
+  glow.addColorStop(0.28, 'rgba(255,200,110,0.8)');
+  glow.addColorStop(0.55, 'rgba(255,165,70,0.3)');
+  glow.addColorStop(1, 'rgba(255,140,50,0)');
+  g.fillStyle = glow;
+  g.fillRect(0, 0, 256, 256);
+  // The lantern: a round paper body with ribs and dark caps, lit from inside.
+  g.save();
+  g.beginPath();
+  g.ellipse(128, 128, 40, 52, 0, 0, Math.PI * 2);
+  g.clip();
+  const body = g.createRadialGradient(124, 122, 4, 128, 128, 48);
+  body.addColorStop(0, '#fffaf0');
+  body.addColorStop(0.45, '#ffe2a8');
+  body.addColorStop(1, '#ff9a3c');
+  g.fillStyle = body;
+  g.fillRect(70, 70, 116, 116);
+  g.strokeStyle = 'rgba(170,90,30,0.35)';
+  g.lineWidth = 2;
+  for (let y = 84; y < 178; y += 10) {
+    g.beginPath();
+    g.ellipse(128, y, 42, 3, 0, 0, Math.PI);
+    g.stroke();
+  }
+  g.restore();
+  g.fillStyle = '#2a1a10';
+  g.fillRect(114, 72, 28, 8);
+  g.fillRect(114, 176, 28, 8);
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  return t;
+}
+
 let shared: {
-  lanternGeo: LatheGeometry;
-  capGeo: LatheGeometry;
-  haloGeo: PlaneGeometry;
+  quad: PlaneGeometry;
   ringGeo: RingGeometry;
-  paper: CanvasTexture;
-  halo: CanvasTexture;
-  haloSolid: CanvasTexture;
+  glow: CanvasTexture;
+  solid: CanvasTexture;
   star: CanvasTexture;
 } | null = null;
 
 function assets() {
   if (shared) return shared;
-  // A round paper lantern, 15 cm tall.
-  const profile: Vector2[] = [];
-  for (let i = 0; i <= 14; i++) {
-    const t = i / 14;
-    const y = (t - 0.5) * 0.15;
-    const r = 0.012 + Math.sin(t * Math.PI) * 0.058;
-    profile.push(new Vector2(r, y));
-  }
-  const capProfile = [new Vector2(0.0, 0.006), new Vector2(0.02, 0.006), new Vector2(0.022, 0), new Vector2(0.0, 0)];
   shared = {
-    lanternGeo: new LatheGeometry(profile, 16),
-    capGeo: new LatheGeometry(capProfile, 12),
-    haloGeo: new PlaneGeometry(1, 1),
+    quad: new PlaneGeometry(1, 1),
     ringGeo: new RingGeometry(0.115, 0.135, 48, 1),
-    paper: paperTexture(),
-    halo: radialTexture([
-      [0, 'rgba(255,236,190,0.95)'],
-      [0.18, 'rgba(255,196,110,0.55)'],
-      [0.45, 'rgba(255,160,70,0.16)'],
-      [1, 'rgba(255,140,50,0)'],
-    ]),
-    haloSolid: radialTexture([
+    glow: lanternGlowTexture(),
+    solid: radialTexture([
       [0, 'rgba(230,255,79,1)'],
       [0.55, 'rgba(230,255,79,1)'],
       [0.62, 'rgba(230,255,79,0.6)'],
@@ -129,54 +126,41 @@ function assets() {
 
 export interface LightVisual {
   root: Group;
-  lantern: Mesh;
+  /** The billboard (lantern painted into its glow). */
   halo: Mesh;
   ring: Mesh;
-  lanternMat: MeshBasicMaterial;
   haloMat: MeshBasicMaterial;
   ringMat: MeshBasicMaterial;
 }
 
-/** One paper light: lantern, glow halo (billboarded by the game) and an outline ring. */
+/** One paper light: a billboarded lantern glow, plus an outline ring for highlights. */
 export function createLightVisual(name: string): LightVisual {
   const a = assets();
   const root = new Group();
   root.name = name;
-  const lanternMat = new MeshBasicMaterial({ map: a.paper, color: 0xffffff, transparent: true });
-  const lantern = new Mesh(a.lanternGeo, lanternMat);
-  lantern.name = `${name}-lantern`;
-  const capMat = new MeshBasicMaterial({ color: 0x2a1a10 });
-  const capTop = new Mesh(a.capGeo, capMat);
-  capTop.position.y = 0.075;
-  lantern.add(capTop);
   const haloMat = new MeshBasicMaterial({
-    map: a.halo,
+    map: a.glow,
     transparent: true,
     depthWrite: false,
-    blending: AdditiveBlending,
     side: DoubleSide,
   });
-  const halo = new Mesh(a.haloGeo, haloMat);
-  halo.name = `${name}-halo`;
-  halo.scale.setScalar(0.5);
+  const halo = new Mesh(a.quad, haloMat);
+  halo.name = `${name}-glow`;
+  halo.scale.setScalar(0.55);
   halo.renderOrder = 2;
   const ringMat = new MeshBasicMaterial({ color: COLORS.focus, transparent: true, depthTest: false, side: DoubleSide });
   const ring = new Mesh(a.ringGeo, ringMat);
   ring.name = `${name}-ring`;
   ring.visible = false;
   ring.renderOrder = 10;
-  root.add(lantern, halo);
-  return { root, lantern, halo, ring, lanternMat, haloMat, ringMat };
+  root.add(halo);
+  return { root, halo, ring, haloMat, ringMat };
 }
 
 export function setHighContrast(v: LightVisual, on: boolean): void {
   const a = assets();
-  v.haloMat.map = on ? a.haloSolid : a.halo;
-  v.haloMat.blending = on ? 1 /* NormalBlending */ : AdditiveBlending;
+  v.haloMat.map = on ? a.solid : a.glow;
   v.haloMat.needsUpdate = true;
-  v.lanternMat.color.copy(on ? COLORS.firefly : COLORS.white);
-  v.lanternMat.map = on ? null : a.paper;
-  v.lanternMat.needsUpdate = true;
 }
 
 /** Dwell ring that fills clockwise: drawRange over a ring of 64 segments. */

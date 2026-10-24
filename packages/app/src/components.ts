@@ -71,7 +71,16 @@ export const PerfStats = createComponent('PerfStats', {
   trianglesMax: { type: Types.Int32, default: 0 },
 });
 
+/**
+ * Test-only signal for scripted recordings: setting feedVoiceFixture (via
+ * `iwsdk ecs set-component`) starts feeding the recorded voice clip when the
+ * page was opened with ?voiceFixture=...&voiceFixtureGate=1.
+ */
+export const TestSignal = createComponent('TestSignal', {
+  feedVoiceFixture: { type: Types.Boolean, default: false },
+});
+
 /** Tag for the palm-up wrist menu chip. */
 export const WristChip = createComponent('WristChip', {});
 
-export default defineComponents([GameState, Light, PerfStats, WristChip]);
+export default defineComponents([GameState, Light, PerfStats, WristChip, TestSignal]);

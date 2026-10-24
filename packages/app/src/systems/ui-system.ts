@@ -48,8 +48,8 @@ export class UISystem extends createSystem({}) {
         speed: 2,
       });
     };
-    follow('hud', [0, -0.17, -0.8]);
-    follow('tabs', [0, -0.3, -0.72]);
+    follow('hud', [0, -0.25, -0.8]);
+    follow('tabs', [0, -0.37, -0.72]);
 
     const c = (): Controller | undefined => globalsOf(this.world).controller;
     const settings = () => this.store.settings;
@@ -161,7 +161,7 @@ export class UISystem extends createSystem({}) {
       this.text(this.hud, 'hud-arrow', s.caption.arrow);
     }
     this.display(this.hud, 'hud-voice-chip', st.voice || s.voiceStatus !== 'off');
-    this.text(this.hud, 'hud-heard', s.transcript ? `heard: "${s.transcript}"` : `voice: ${s.voiceStatus}`);
+    this.text(this.hud, 'hud-heard', s.transcript ? `heard: "${s.transcript}"` : `voice: ${s.voiceStatus.startsWith('listening') ? 'listening' : s.voiceStatus}`);
 
     // Card: onboarding and between rounds.
     const cardPhase = s.phase === 'onboarding' || s.phase === 'round-end' || s.phase === 'night-end';

@@ -51,6 +51,7 @@ function hasSavedSettings(): boolean {
 
 function loadSettings(): Settings {
   try {
+    if (new URLSearchParams(location.search).has('fresh')) return sanitizeSettings(null);
     const raw = localStorage.getItem(SETTINGS_KEY);
     return sanitizeSettings(raw ? JSON.parse(raw) : null);
   } catch {

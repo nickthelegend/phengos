@@ -65,9 +65,17 @@ export interface Controller {
   toggleMenu(): void;
   louder(): void;
   firstInput(method: CatchMethod): void;
+  /** Pinch start: catch the light the ray was on a moment ago (hand rays drift as a pinch closes). */
+  catchHovered(hand: 'left' | 'right' | null): boolean;
 }
 
 const ONBOARD_ID = 'light-hello';
+
+/** `?round=N` starts the night at round N (used by the 12-light performance run). */
+function firstRound(): number {
+  const n = Number(new URLSearchParams(location.search).get('round') ?? 0) || 0;
+  return Math.min(NIGHT_ROUNDS.length - 1, Math.max(0, n));
+}
 
 export class GameSystem extends createSystem({
   lights: { required: [Light] },
@@ -93,6 +101,8 @@ export class GameSystem extends createSystem({
   private nightPlays = 0;
   private pendingStars: Array<{ id: string; u: number; v: number }> = [];
   controller!: Controller;
+  private lastHovered: string | null = null;
+  private lastHoveredAt = -1;
 
   init(): void {
     this.store = this.world.globals[STORE_KEY] as Store;
@@ -149,6 +159,15 @@ export class GameSystem extends createSystem({
         this.store.say(`Hum volume ${Math.round(this.store.settings.humVolume * 100)}%`, 'o', 2);
       },
       firstInput: (method) => this.firstInput(method),
+      catchHovered: (hand) => {
+        if (!this.lastHovered || this.store.time - this.lastHoveredAt > 0.3) return false;
+        const method: CatchMethod = !this.store.inXR ? 'mouse' : this.store.gazeAvailable ? 'eyes' : 'point';
+        const id = this.lastHovered;
+        if (!this.catchLight(id, method, hand)) return false;
+        this.store.pinchConsumedAt = this.store.time;
+        this.firstInput(method);
+        return true;
+      },
     };
     this.world.globals.controller = this.controller;
     this.world.globals.lightVisuals = this.lightVisuals;
@@ -409,12 +428,11 @@ export class GameSystem extends createSystem({
     // Phase machine.
     if (s.phase === 'room' && s.roomInfo) {
       this.refreshStars();
-      const startAt = Math.min(NIGHT_ROUNDS.length - 1, Math.max(0, Number(new URLSearchParams(location.search).get('round') ?? 0) || 0));
-      if (s.modeChosen) this.startRound(startAt);
+      if (s.modeChosen) this.startRound(firstRound());
       else this.startOnboarding();
     } else if (s.phase === 'onboarding' && s.round?.done && this.allLanded()) {
       this.clearLights();
-      this.startRound(0);
+      this.startRound(firstRound());
     } else if (s.phase === 'playing' && s.round?.done && time >= this.roundEndAt) {
       this.commitStars();
       if (s.roundIndex + 1 < NIGHT_ROUNDS.length) {
@@ -445,11 +463,9 @@ export class GameSystem extends createSystem({
       } else {
         const t = time + rt.phase;
         root.position.set(rt.spot.position.x, rt.spot.position.y + Math.sin(t * 1.3) * 0.012, rt.spot.position.z);
-        rt.visual.lantern.rotation.y = Math.sin(t * 0.4) * 0.3;
         const flicker = 0.85 + Math.sin(t * 7.1) * 0.05 + Math.sin(t * 3.3) * 0.05;
         const pulse = hc ? 0.75 + 0.25 * Math.sin(time * 4) : flicker;
-        rt.visual.halo.scale.setScalar((hc ? 0.32 : 0.48) * pulse);
-        rt.visual.lantern.scale.setScalar(hc ? 1.5 : 1);
+        rt.visual.halo.scale.setScalar((hc ? 0.62 : 0.55) * pulse);
       }
       root.visible = rt.flight ? rt.flight.stage !== 'done' : !hidden;
     }
@@ -458,6 +474,10 @@ export class GameSystem extends createSystem({
     for (const rt of this.runtimes.values()) {
       if (rt.flight) continue;
       const hovered = rt.entity.hasComponent(Hovered);
+      if (hovered) {
+        this.lastHovered = rt.id;
+        this.lastHoveredAt = time;
+      }
       const scanned = s.scanItem === rt.id;
       const outlined = s.outlined === rt.id;
       const dwell = s.dwellTarget === rt.id;
@@ -501,7 +521,7 @@ export class GameSystem extends createSystem({
       const k = ease(f.t / 0.9);
       root.position.lerpVectors(f.from, this.tmp, k);
       root.position.y += Math.sin(k * Math.PI) * 0.25;
-      rt.visual.halo.scale.setScalar(0.48 + k * 0.25);
+      rt.visual.halo.scale.setScalar(0.55 - k * 0.4);
       if (f.t >= 0.9) {
         f.stage = 'rest';
         f.t = 0;
@@ -509,7 +529,7 @@ export class GameSystem extends createSystem({
     } else if (f.stage === 'rest') {
       this.palm(f.hand, this.tmp);
       root.position.lerp(this.tmp, 0.3);
-      rt.visual.halo.scale.setScalar(0.73 + Math.sin(f.t * 9) * 0.05);
+      rt.visual.halo.scale.setScalar(0.16 + Math.sin(f.t * 9) * 0.015);
       if (f.t >= 0.7) {
         f.stage = 'rise';
         f.t = 0;
@@ -518,8 +538,7 @@ export class GameSystem extends createSystem({
     } else if (f.stage === 'rise') {
       const k = ease(f.t / 1.8);
       root.position.lerpVectors(f.from, f.star, k);
-      root.scale.setScalar(1 - k * 0.75);
-      rt.visual.halo.scale.setScalar(0.6 - k * 0.3);
+      rt.visual.halo.scale.setScalar(0.16 + k * 0.2);
       if (f.t >= 1.8) {
         f.stage = 'done';
         root.visible = false;

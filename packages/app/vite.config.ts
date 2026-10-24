@@ -12,12 +12,7 @@ import { defineConfig } from 'vite';
 const coreEntry = fileURLToPath(new URL('../core/src/index.ts', import.meta.url));
 
 export default defineConfig({
-  plugins: [
-    iwsdkDev({
-      // Agent mode (headless) renders at 1280x720 so emulator clips are 720p.
-      ai: { mode: 'agent', screenshotSize: { width: 1280, height: 720 } },
-    }),
-  ],
+  plugins: [iwsdkDev()],
   server: { host: '0.0.0.0', port: 8081, open: false, fs: { allow: ['..'] } },
   build: {
     outDir: 'dist',

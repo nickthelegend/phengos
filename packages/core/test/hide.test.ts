@@ -9,8 +9,8 @@ const FORWARD = forwardFromYaw(0);
 const rooms = [studio, bare, ...capturedRooms()];
 
 describe('rooms under test', () => {
-  it('has the hand-authored rooms, one of them bare', () => {
-    expect(rooms.length).toBeGreaterThanOrEqual(2);
+  it('has at least four synthetic rooms (two hand-authored, three captured from IWER), one of them bare', () => {
+    expect(rooms.length).toBeGreaterThanOrEqual(5);
     expect(rooms.some((r) => r.boxes.length === 0)).toBe(true);
   });
 });
@@ -115,5 +115,21 @@ describe('occlusion geometry', () => {
   it('rotated boxes block along their rotated extent', () => {
     const desk = studio.boxes[3]!; // yaw 0.5 rad
     expect(segmentHitsBox(vec(-1.6, 2, -2.3), vec(-1.6, 0.1, -2.3), desk)).toBe(true);
+  });
+});
+
+describe('walls', () => {
+  it('no spot ever sits behind a wall', () => {
+    for (const room of rooms) {
+      const { spots, info } = hideLights(room, { count: 12, seed: 99, head: HEAD, forward: FORWARD });
+      for (const s of spots) {
+        for (const w of info.walls.filter((x) => x.area >= 2)) {
+          const toHead = (HEAD.x - w.center.x) * w.normal.x + (HEAD.y - w.center.y) * w.normal.y + (HEAD.z - w.center.z) * w.normal.z;
+          const n = toHead < 0 ? -1 : 1;
+          const d = n * ((s.position.x - w.center.x) * w.normal.x + (s.position.y - w.center.y) * w.normal.y + (s.position.z - w.center.z) * w.normal.z);
+          expect(d).toBeGreaterThan(LIGHT_RADIUS);
+        }
+      }
+    }
   });
 });

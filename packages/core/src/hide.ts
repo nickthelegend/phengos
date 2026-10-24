@@ -124,6 +124,7 @@ export function visibleFraction(center: Vec3, viewer: Vec3, boxes: RoomBox[], ra
 
 function furnitureCandidates(info: RoomInfo, head: Vec3, r: number): Candidate[] {
   const out: Candidate[] = [];
+  const walls = innerWalls(info, head);
   for (const box of info.boxes) {
     if (!HOSTS.has(box.label)) continue;
     const top = boxTop(box);
@@ -152,7 +153,7 @@ function furnitureCandidates(info: RoomInfo, head: Vec3, r: number): Candidate[]
     // furniture stands against a wall there is no gap, so the light perches on
     // the back edge instead and the furniture still hides its lower half.
     if (top < info.ceilingY - 0.4) {
-      const room = roomDepthAlong(info, box.center, far.normal);
+      const room = roomDepthAlong(info, box.center, far.normal, walls);
       const gap = room - halfAlong;
       const perched = gap < r * 2 + 0.08;
       for (const u of [-0.55, -0.2, 0.2, 0.55]) {
@@ -186,13 +187,26 @@ function furnitureCandidates(info: RoomInfo, head: Vec3, r: number): Candidate[]
   return out;
 }
 
-/** Horizontal distance from `from` to the room bounds along `dir`. */
-function roomDepthAlong(info: RoomInfo, from: Vec3, dir: Vec3): number {
+/** Large walls with their normals turned to face the player. */
+function innerWalls(info: RoomInfo, head: Vec3): Array<{ c: Vec3; n: Vec3 }> {
+  return info.walls
+    .filter((w) => w.area >= 2)
+    .map((w) => ({ c: w.center, n: signedDistance(head, w.center, w.normal) < 0 ? scale(w.normal, -1) : w.normal }));
+}
+
+/** Horizontal distance from `from` to the nearest wall (or the room bounds) along `dir`. */
+function roomDepthAlong(info: RoomInfo, from: Vec3, dir: Vec3, walls: Array<{ c: Vec3; n: Vec3 }>): number {
   let t = Infinity;
   if (dir.x > 1e-6) t = Math.min(t, (info.max.x - from.x) / dir.x);
   if (dir.x < -1e-6) t = Math.min(t, (info.min.x - from.x) / dir.x);
   if (dir.z > 1e-6) t = Math.min(t, (info.max.z - from.z) / dir.z);
   if (dir.z < -1e-6) t = Math.min(t, (info.min.z - from.z) / dir.z);
+  for (const w of walls) {
+    const denom = dir.x * w.n.x + dir.z * w.n.z;
+    if (denom >= -1e-6) continue; // moving away from this wall
+    const d = signedDistance(from, w.c, w.n);
+    if (d > 0) t = Math.min(t, d / -denom);
+  }
   return t;
 }
 
@@ -271,6 +285,7 @@ export function hideLights(room: Room, opts: HideOptions): HideResult {
   const minSep = rad(opts.minAngularSeparationDeg ?? 8);
   const rng = createRng(opts.seed);
 
+  const walls = innerWalls(info, opts.head);
   const raw = [
     ...furnitureCandidates(info, opts.head, r),
     ...ceilingCandidates(info),
@@ -286,6 +301,8 @@ export function hideLights(room: Room, opts: HideOptions): HideResult {
     if (p.z < info.min.z - 0.01 || p.z > info.max.z + 0.01) continue;
     if (p.y < info.floorY + r || p.y > info.ceilingY - r) continue;
     if (info.boxes.some((b) => insideBox(occluderFor(b), p, 0))) continue;
+    // On the room side of every large wall (a light behind a wall is never visible in reality).
+    if (walls.some((w) => signedDistance(p, w.c, w.n) < r + 0.02)) continue;
     const yaw = deg(signedYaw(opts.forward, sub(p, opts.head)));
     if (Math.abs(yaw) > comfort) continue;
     const vis = visibleFraction(p, opts.head, info.boxes, r);

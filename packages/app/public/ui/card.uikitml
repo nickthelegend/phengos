@@ -67,7 +67,7 @@
 <div class="card">
   <span id="card-eyebrow" class="eyebrow">PHENGOS</span>
   <span id="card-title" class="title">Catch the light</span>
-  <span id="card-body" class="body">Any way works. The first one you use, we keep.</span>
+  <span id="card-body" class="body">Any way works. Your first catch sets the way.</span>
   <div id="card-tiles" class="tiles">
     <div id="tile-point" class="tile">
       <Pointer class="glyph"></Pointer>

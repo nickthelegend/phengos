@@ -18,7 +18,7 @@
       }
       #start[hidden] { display: none; }
       .sign { max-width: 560px; width: 100%; border: 3px solid #fafafa; border-radius: 20px; padding: 28px 24px; box-sizing: border-box; }
-      .eyebrow { font-family: PTMono, monospace; color: #e6ff4f; letter-spacing: 0.18em; font-size: 0.95rem; margin: 0; }
+      .name { font-weight: 700; color: #e6ff4f; font-size: 1.15rem; margin: 0; letter-spacing: 0; }
       h1 { font-size: clamp(2.2rem, 8vw, 3.4rem); margin: 8px 0 6px; }
       p { font-size: 1.15rem; line-height: 1.6; margin: 0 0 14px; color: #e8e9ec; }
       ul { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 8px; }
@@ -28,26 +28,40 @@
         font: inherit; font-size: 1.3rem; font-weight: 700; width: 100%; padding: 16px 20px; border-radius: 14px;
         border: 3px solid #e6ff4f; background: #e6ff4f; color: #050608; cursor: pointer;
       }
-      button:disabled { opacity: 0.5; cursor: progress; }
-      button:focus-visible { outline: 4px solid #3d8bff; outline-offset: 3px; }
-      #status { font-family: PTMono, monospace; font-size: 0.95rem; color: #c9ccd2; margin-top: 14px; }
+      button:disabled { background: #1c2026; color: #fafafa; border-color: #3a3e46; opacity: 1; cursor: not-allowed; }
+      button:disabled[aria-busy='true'] { cursor: progress; }
+      button:focus-visible, summary:focus-visible { outline: 4px solid #3d8bff; outline-offset: 3px; }
+      details { margin: 0 0 18px; }
+      summary {
+        display: flex; align-items: center; min-height: 44px; cursor: pointer; font-weight: 700;
+        list-style: none; color: #fafafa;
+      }
+      summary::-webkit-details-marker { display: none; }
+      summary::after { content: '+'; margin-left: auto; font-family: PTMono, monospace; color: #e6ff4f; font-size: 1.3rem; }
+      details[open] summary { margin-bottom: 10px; }
+      details[open] summary::after { content: '–'; }
+      #status { font-family: PTMono, monospace; font-size: 0.95rem; color: #d9dbe0; margin: 14px 0 0; overflow-wrap: anywhere; }
     </style>
   </head>
   <body>
     <div id="start">
       <main class="sign">
-        <p class="eyebrow">PHENGOS / A GAME OF HIDING LIGHTS</p>
+        <p class="name">Phengos</p>
         <h1>Catch the light</h1>
-        <p>Small paper lights hide behind your real furniture. Every way to play is a full way to play.</p>
-        <ul>
-          <li><b>Point</b> with your hand ray and pinch</li>
-          <li><b>Look</b> and hold (head on Quest, eyes on Meta VR Glasses)</li>
-          <li><b>One switch</b>: any pinch catches the outlined light</li>
-          <li><b>Voice</b>, optional: "catch", "next", "hint"</li>
-          <li><b>Listen</b>: each light hums from where it hides</li>
-        </ul>
-        <button id="enter" type="button" disabled>Enter your room</button>
-        <p id="status" role="status">Seated is fine. Nothing to reach for.</p>
+        <p>Twelve paper lights hide in your room. Any one way finishes the game.</p>
+        <details>
+          <summary>Ways to play</summary>
+          <ul>
+            <li><b>Point</b> and pinch.</li>
+            <li><b>Look</b> and hold. Head on Quest, eyes on Glasses.</li>
+            <li><b>One switch.</b> Any pinch catches the outline.</li>
+            <li><b>Voice,</b> optional. Nine words, on the device.</li>
+            <li><b>Or follow the hum</b> if you can't see the light.</li>
+          </ul>
+        </details>
+        <button id="enter" type="button" disabled aria-busy="true">Enter your room</button>
+        <p id="status" role="status">Loading.</p>
+        <noscript><p>Phengos needs JavaScript to enter the room.</p></noscript>
       </main>
     </div>
     <div id="scene-container"></div>

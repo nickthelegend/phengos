@@ -41,18 +41,79 @@ World.create(document.getElementById('scene-container') as HTMLDivElement, proje
     world.registerSystem(WristSystem);
     world.registerSystem(PerfEndSystem, { priority: 1_000_000 });
 
+    let enterWatch = 0;
+    const armEnter = (ready: boolean, message: string) => {
+      if (enter) {
+        enter.disabled = !ready;
+        enter.setAttribute('aria-busy', 'false');
+      }
+      if (status) status.textContent = message;
+    };
+    const stopEnterWatch = () => window.clearInterval(enterWatch);
     if (enter) {
-      enter.disabled = false;
       enter.addEventListener('click', () => {
+        if (enter.disabled || world.session || world.sessionRequestPending) return;
         globalsOf(world).audio?.unlock();
-        world.launchXR();
+        if (status) status.textContent = 'Opening your room.';
+        try {
+          world.launchXR();
+        } catch (err) {
+          console.error('[phengos] could not enter', err);
+          armEnter(true, 'Could not enter the room. Reload and try again.');
+          return;
+        }
+        stopEnterWatch();
+        enterWatch = window.setInterval(() => {
+          if (world.session) {
+            stopEnterWatch();
+            return;
+          }
+          if (world.sessionRequestPending) return;
+          stopEnterWatch();
+          if (status && !overlay?.hasAttribute('hidden')) {
+            status.textContent = 'Could not enter the room. Allow the headset prompt, then try again.';
+          }
+        }, 300);
       });
     }
-    world.renderer.xr.addEventListener('sessionstart', () => overlay?.setAttribute('hidden', ''));
-    world.renderer.xr.addEventListener('sessionend', () => overlay?.removeAttribute('hidden'));
-    if (!navigator.xr && status) status.textContent = 'This browser has no WebXR. Open Phengos in the Meta Quest Browser.';
+    world.renderer.xr.addEventListener('sessionstart', () => {
+      stopEnterWatch();
+      overlay?.setAttribute('hidden', '');
+    });
+    world.renderer.xr.addEventListener('sessionend', () => {
+      overlay?.removeAttribute('hidden');
+      if (enter && !enter.disabled && status) status.textContent = 'You left the room. Enter again when you are seated.';
+    });
+    // A stuck support check must not leave the door locked. A finished check wins.
+    let supportSettled = false;
+    const supportGaveUp = window.setTimeout(() => {
+      if (!supportSettled) armEnter(true, 'Seated is fine. Nothing to reach for.');
+    }, 4000);
+    void immersiveArSupported().then((supported) => {
+      supportSettled = true;
+      window.clearTimeout(supportGaveUp);
+      if (supported) armEnter(true, 'Seated is fine. Nothing to reach for.');
+      else if (!navigator.xr) armEnter(false, 'This browser has no WebXR. Open Phengos in the Meta Quest Browser.');
+      else armEnter(false, 'This browser cannot open an AR room. Open Phengos in the Meta Quest Browser.');
+    });
   })
   .catch((err: unknown) => {
     console.error('[phengos] failed to start', err);
-    if (status) status.textContent = `Phengos could not start: ${String(err)}`;
+    if (enter) {
+      enter.disabled = true;
+      enter.setAttribute('aria-busy', 'false');
+    }
+    if (status) status.textContent = startFailure(err);
   });
+
+/** Quest Browser can open an AR session. A desktop tab usually cannot. */
+function immersiveArSupported(): Promise<boolean> {
+  if (!navigator.xr?.isSessionSupported) return Promise.resolve(false);
+  return navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
+}
+
+function startFailure(err: unknown): string {
+  const raw = err instanceof Error ? err.message : '';
+  const clean = raw.replace(/\s+/g, ' ').trim().slice(0, 140);
+  return clean ? `Phengos could not start. ${clean}` : 'Phengos could not start. Reload this page.';
+}

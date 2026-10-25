@@ -172,7 +172,7 @@ export class UISystem extends createSystem({}) {
       if (s.phase === 'onboarding') {
         this.text(this.card, 'card-eyebrow', 'PHENGOS');
         this.text(this.card, 'card-title', 'Catch the light');
-        this.text(this.card, 'card-body', 'Any way works. The first one you use, we keep.');
+        this.text(this.card, 'card-body', 'Any way works. Your first catch sets the way.');
         this.display(this.card, 'card-tiles', true);
       } else if (s.phase === 'round-end') {
         this.text(this.card, 'card-eyebrow', `ROUND ${s.roundIndex + 1} OF 3`);

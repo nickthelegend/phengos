@@ -1,0 +1,115 @@
+{
+  "attemptedAt": "2026-10-25T14:28:39.186Z",
+  "status": "blocked",
+  "node": "v26.5.0",
+  "dependencies": {
+    "core": "npm ci succeeded",
+    "app": "npm ci succeeded"
+  },
+  "typecheck": "passed",
+  "productionBuild": "passed with font-resolution and bundle-size warnings",
+  "startup": {
+    "command": "npx iwsdk dev up --ai-mode agent --headless --allow-browser-automation",
+    "exitCode": 1,
+    "cliError": "dev_up_exit",
+    "cause": "runtime_owner_identity_unavailable",
+    "message": "Cannot establish this process birth identity, so runtime ownership cannot be acquired safely.",
+    "environmentEvidence": "ps: operation not permitted",
+    "managedBrowserLaunched": false
+  },
+  "scenarios": [
+    {
+      "scenario": "hands",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "look",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "switch",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "contrast",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "voice",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "paper",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "perf",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "glasses",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "glassesdwell",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    },
+    {
+      "scenario": "voice-missing",
+      "status": "not_run",
+      "passed": null,
+      "failed": null
+    }
+  ],
+  "performance": {
+    "status": "not_measured",
+    "cpuP95": null,
+    "drawCallsMax": null,
+    "drawCallsPerEye": null,
+    "trianglesMax": null,
+    "gates": {
+      "cpuP95Ms": 4,
+      "drawCallsPerStereoFrame": 100,
+      "drawCallsPerEye": 70,
+      "triangles": 120000
+    }
+  },
+  "model": {
+    "download": "failed: curl (6), could not resolve alphacephei.com",
+    "source": "existing archive copied from main project checkout",
+    "archiveReadable": true,
+    "sha256": "55a0a21a056a05d6ab2ab1d69892b39cbe402ce57f9d5b48835612be6378ae2e",
+    "upstreamZipChecksumVerifiedThisAttempt": false,
+    "restored": true
+  },
+  "cleanup": {
+    "devDown": {
+      "ok": true,
+      "stopped": false
+    },
+    "heavySlotReleased": true,
+    "configUnchanged": true,
+    "device": "metaQuest3",
+    "environment": "sunlit_living_room",
+    "processListVerification": "unavailable: sandbox denies ps; startup exited before runtime registration"
+  },
+  "historicalArtifacts": "Existing scenario JSON, PNGs, perf-report.json and browser-profile.json were retained unchanged. They are not fresh results from this attempt."
+}

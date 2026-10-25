@@ -1,0 +1,28 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "packages/app/index.html",
+          "packages/landing/evidence.html",
+          "packages/landing/index.html"
+        ],
+        "createdAt": "2026-10-25T10:51:24.887Z",
+        "reason": "Agent: wayfinding headlines and proof numbers use clamp(), which the static detector drops, so it only sees the caption cluster. Rendered h1-to-caption ratio stays above 2:1 (app 2.2rem/0.95rem, landing 3rem/0.92rem, evidence 2.4rem/0.85rem)."
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "packages/landing/index.html"
+        ],
+        "createdAt": "2026-10-25T10:51:24.917Z",
+        "reason": "Agent: body line-height is unitless 1.45. The 1.21x reading is that multiplier baked into 16px and inherited onto 1.2rem text. Browsers recompute unitless leading, so the rendered ratio stays 1.45."
+      }
+    ]
+  }
+}

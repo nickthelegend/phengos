@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050608">
+  <title>Phengos evidence</title>
+  <meta name="description" content="What the Phengos emulator run proved, and what still needs a Quest.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050608'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23e6ff4f'/%3E%3C/svg%3E">
+  <style>
+    @font-face { font-family: Lexend; src: url(fonts/Lexend-Regular.ttf); font-weight: 400; font-display: swap; }
+    @font-face { font-family: Lexend; src: url(fonts/Lexend-Bold.ttf); font-weight: 700; font-display: swap; }
+    @font-face { font-family: "PT Mono"; src: url(fonts/PTMono-Regular.ttf); font-display: swap; }
+    :root {
+      --night: #050608; --white: #fafafa; --firefly: #e6ff4f; --focus: #3d8bff; --muted: #d9dbe0; --line: #2a2d33;
+      --scale: 1; color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: calc(100% * var(--scale)); scrollbar-color: #3a3e46 var(--night); }
+    body { margin: 0; background: var(--night); color: var(--white); font-family: Lexend, system-ui, sans-serif; line-height: 1.5; }
+    ::selection { background: var(--firefly); color: var(--night); }
+    a { color: var(--firefly); text-underline-offset: 0.18em; }
+    :focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
+    .wrap { width: min(880px, 100%); margin: 0 auto; padding: 0 1.25rem 4.5rem; }
+    header.bar { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; justify-content: space-between; padding: 1.25rem 0 0.35rem; }
+    .mark { font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.6rem; color: inherit; text-decoration: none; }
+    .mark svg { width: 1.7rem; height: 1.7rem; flex: none; }
+    .size { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; font-family: "PT Mono", monospace; font-size: 0.95rem; }
+    button {
+      font: inherit; font-weight: 700; color: var(--white); background: transparent;
+      border: 2px solid var(--white); border-radius: 999px; padding: 0.55rem 0.85rem; min-height: 2.75rem; min-width: 2.75rem;
+      cursor: pointer;
+    }
+    button[aria-pressed="true"] { background: var(--firefly); color: var(--night); border-color: var(--firefly); }
+    button:hover { background: var(--white); color: var(--night); }
+    button.listen { display: none; margin-top: 0.85rem; font-weight: 400; }
+    body.has-speech button.listen { display: inline-flex; }
+    h1, h2, p, li, td { overflow-wrap: break-word; }
+    h1 { font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: 0.98; letter-spacing: -0.03em; margin: 1.5rem 0 0.75rem; max-width: 12em; }
+    h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); line-height: 1.1; letter-spacing: -0.03em; margin: 2.75rem 0 0.7rem; }
+    p, li { color: var(--muted); font-size: 1.12rem; }
+    p { max-width: 62ch; }
+    section > p:first-of-type { margin-top: 0; }
+    .nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; margin: 1.5rem 0 0.5rem; }
+    .nums p { margin: 0; max-width: none; }
+    .nums strong { display: block; font-size: clamp(2.8rem, 7vw, 4.4rem); line-height: 0.9; color: var(--firefly); letter-spacing: -0.03em; }
+    .nums span { display: block; margin-top: 0.3rem; font-family: "PT Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.9rem; color: var(--white); }
+    .table-wrap { overflow-x: auto; max-width: 100%; margin: 0.6rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
+    th, td { text-align: left; padding: 0.75rem 0.5rem; border-top: 2px solid var(--line); vertical-align: top; }
+    th { font-family: "PT Mono", monospace; font-weight: 400; color: var(--firefly); }
+    td { color: var(--white); }
+    .tag { font-family: "PT Mono", monospace; font-size: 0.85rem; padding: 0.15rem 0.5rem; border-radius: 8px; border: 2px solid currentColor; white-space: nowrap; }
+    .ok { color: var(--firefly); }
+    .todo { color: #b9dcff; }
+    ul { margin: 0.4rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.85rem; }
+    li { padding-top: 0.75rem; border-top: 2px solid var(--line); }
+    li b { color: var(--white); }
+    .back { display: inline-flex; align-items: center; min-height: 2.75rem; margin-top: 2.25rem; font-weight: 700; }
+    @media (max-width: 700px) {
+      .wrap { padding: 0 1rem 3.5rem; }
+      .nums { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script>
+    try {
+      var savedScale = localStorage.getItem('phengos.scale');
+      if (savedScale === '1' || savedScale === '1.5' || savedScale === '2') {
+        document.documentElement.style.setProperty('--scale', savedScale);
+      }
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="bar">
+      <a class="mark" href="index.html">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#e6ff4f"/><circle cx="16" cy="16" r="6" fill="#050608"/></svg>
+        Phengos
+      </a>
+      <div class="size" role="group" aria-label="Text size">
+        <span>Text</span>
+        <button type="button" data-scale="1" aria-pressed="true">100%</button>
+        <button type="button" data-scale="1.5" aria-pressed="false">150%</button>
+        <button type="button" data-scale="2" aria-pressed="false">200%</button>
+      </div>
+    </header>
+
+    <main>
+      <section aria-labelledby="h-top">
+        <h1 id="h-top">What was measured.</h1>
+        <p>The sign's 12 lights, 4 ways and 3 rounds are the game. These are the checks behind them. Counted 25 Oct 2026.</p>
+        <div class="nums" aria-label="Test counts">
+          <p><strong>84</strong> <span>Tests</span></p>
+          <p><strong>46</strong> <span>Checks</span></p>
+          <p><strong>1.5</strong> <span>ms p95</span></p>
+        </div>
+        <p>Unit tests run on the game logic. Emulator checks run the real app in the Meta Immersive Web Emulator, with emulated hands, gaze and rooms. Nothing in the game is mocked. Desktop Chrome under the emulator is not a headset measurement.</p>
+        <button class="listen" type="button">Listen</button>
+      </section>
+
+      <section aria-labelledby="h-ways">
+        <h2 id="h-ways">Four ways, each one enough</h2>
+        <ul>
+          <li><b>Point.</b> Aim the hand ray and pinch. The light floats to that palm.</li>
+          <li><b>Look.</b> Hold your view for one second. On Quest 3 this is head-gaze, labelled "Look (head)". Quest 3 has no eye tracking. On Meta VR Glasses the same control follows your eyes.</li>
+          <li><b>One switch.</b> An outline steps from light to light. Any pinch, from either hand, catches the outlined one. A long pinch opens the menu.</li>
+          <li><b>Voice, optional.</b> Nine words, recognised on the device by Vosk. Nothing is stored or sent. If the model or mic is missing, the chip says so and play continues.</li>
+          <li><b>Follow the hum.</b> Pitch is height. The pulse quickens as you aim closer. Every sound has a caption, such as "hum, left, low". Sound only hides the lights and leaves the hum.</li>
+          <li><b>High contrast.</b> Walls and furniture redraw as yellow or white outlines. Lights become solid yellow. Geometry only: an app cannot recolour passthrough.</li>
+        </ul>
+        <button class="listen" type="button">Listen</button>
+      </section>
+
+      <section aria-labelledby="h-room">
+        <h2 id="h-room">Your room is the level</h2>
+        <p>Phengos reads the scan the headset already has: labelled furniture, plus walls, floor and ceiling classified by orientation and height. Each light is partly visible from your seat and inside a 120° turn. Depth occlusion hides it behind the real couch. A night is three rounds: 5, then 8, then 12. Caught lights stay on the ceiling. No scan within five seconds, and a paper room of three screens still finishes the game.</p>
+        <button class="listen" type="button">Listen</button>
+      </section>
+
+      <section aria-labelledby="h-status">
+        <h2 id="h-status">Emulator, and not yet a headset</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Part</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+              <tr><td>Each way finishes a round on its own</td><td><span class="tag ok">emulator</span></td></tr>
+              <tr><td>Voice through the real recogniser, recorded clip</td><td><span class="tag ok">emulator</span></td></tr>
+              <tr><td>Hiding spots, dwell, scanning, grammar</td><td><span class="tag ok">84 unit tests</span></td></tr>
+              <tr><td>CPU p95 1.5 ms (one frame reached 5.3 ms), 43 draws per eye, 21,092 triangles</td><td><span class="tag ok">emulator</span></td></tr>
+              <tr><td>Mic and Vosk inside an immersive session</td><td><span class="tag todo">needs a headset</span></td></tr>
+              <tr><td>Depth at couch edges, 72 fps, dwell comfort</td><td><span class="tag todo">needs a headset</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The full method and the unverified list live in the repository's TESTING.md.</p>
+        <button class="listen" type="button">Listen</button>
+      </section>
+
+      <a class="back" href="index.html">Back to the sign</a>
+    </main>
+  </div>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll('.size button');
+      function setScale(v) {
+        document.documentElement.style.setProperty('--scale', v);
+        buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.scale === v)); });
+        try { localStorage.setItem('phengos.scale', v); } catch (e) {}
+      }
+      buttons.forEach(function (b) { b.addEventListener('click', function () { setScale(b.dataset.scale); }); });
+      var current = '1';
+      try {
+        var saved = localStorage.getItem('phengos.scale');
+        if (saved === '1' || saved === '1.5' || saved === '2') current = saved;
+      } catch (e) {}
+      setScale(current);
+
+      if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function') {
+        document.body.classList.add('has-speech');
+        document.querySelectorAll('.listen').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var section = btn.closest('section');
+            var text = Array.prototype.map.call(section.querySelectorAll('h1, h2, p, li'), function (n) { return n.textContent; }).join('. ');
+            speechSynthesis.cancel();
+            speechSynthesis.speak(new SpeechSynthesisUtterance(text.replace(/\s+/g, ' ').trim()));
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

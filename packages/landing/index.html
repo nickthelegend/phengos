@@ -4,59 +4,105 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050608">
-  <title>Phengos: catch the light, any way you play</title>
-  <meta name="description" content="A mixed-reality hide-and-seek game for Meta Quest. Lights hide behind your real furniture. Catch them by pointing, by looking, by voice or with one switch, or follow their hum.">
+  <title>Phengos — twelve lights, any way you play</title>
+  <meta name="description" content="Twelve paper lights hide in your real room. Catch them by pointing, looking, speaking, or one switch.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050608'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23e6ff4f'/%3E%3C/svg%3E">
   <style>
     @font-face { font-family: Lexend; src: url(fonts/Lexend-Regular.ttf); font-weight: 400; font-display: swap; }
     @font-face { font-family: Lexend; src: url(fonts/Lexend-Bold.ttf); font-weight: 700; font-display: swap; }
     @font-face { font-family: "PT Mono"; src: url(fonts/PTMono-Regular.ttf); font-display: swap; }
     :root {
-      --night: #050608; --white: #fafafa; --firefly: #e6ff4f; --focus: #3d8bff; --line: #2a2d33; --muted: #d9dbe0;
+      --night: #050608; --white: #fafafa; --firefly: #e6ff4f; --focus: #3d8bff; --muted: #d9dbe0; --line: #2a2d33;
       --scale: 1; color-scheme: dark;
     }
     * { box-sizing: border-box; }
-    html { font-size: calc(100% * var(--scale)); }
-    body { margin: 0; background: var(--night); color: var(--white); font-family: Lexend, system-ui, sans-serif; line-height: 1.6; }
-    a { color: var(--firefly); text-underline-offset: 3px; }
+    html { font-size: calc(100% * var(--scale)); scroll-behavior: smooth; scrollbar-color: #3a3e46 var(--night); }
+    body { margin: 0; background: var(--night); color: var(--white); font-family: Lexend, system-ui, sans-serif; line-height: 1.45; }
+    ::selection { background: var(--firefly); color: var(--night); }
+    a { color: var(--firefly); text-underline-offset: 0.18em; }
     :focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-    header.bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 18px 0; }
-    .mark { font-weight: 700; font-size: 1.4rem; letter-spacing: 0.02em; display: flex; align-items: center; gap: 10px; }
-    .mark svg { width: 1.6rem; height: 1.6rem; }
-    .size { display: flex; gap: 6px; align-items: center; font-family: "PT Mono", monospace; }
-    .size button { min-width: 3rem; }
-    button { font: inherit; color: var(--white); background: var(--night); border: 2px solid var(--white); border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+    .skip {
+      position: absolute; left: 16px; top: 12px; transform: translateY(-160%);
+      background: var(--firefly); color: var(--night); font-weight: 700; padding: 0.6rem 0.9rem; border-radius: 999px; z-index: 2;
+    }
+    .skip:focus { transform: none; }
+    .wrap { width: min(960px, 100%); margin: 0 auto; padding: 0 1.25rem; }
+    header.bar { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; justify-content: space-between; padding: 1.25rem 0 0.35rem; }
+    .mark { font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.6rem; }
+    .mark svg { width: 1.7rem; height: 1.7rem; flex: none; }
+    .size { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; font-family: "PT Mono", monospace; font-size: 0.95rem; }
+    button, .btn {
+      font: inherit; font-weight: 700; color: var(--white); background: transparent;
+      border: 2px solid var(--white); border-radius: 999px; padding: 0.7rem 1.15rem; min-height: 2.75rem;
+      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .size button { min-width: 2.75rem; padding-inline: 0.75rem; }
     button[aria-pressed="true"] { background: var(--firefly); color: var(--night); border-color: var(--firefly); }
-    .sign { border: 3px solid var(--white); border-radius: 18px; padding: clamp(18px, 4vw, 32px); margin: 0 0 20px; display: grid; grid-template-columns: auto 1fr; gap: 18px 24px; align-items: start; }
-    .sign.hero { grid-template-columns: 1fr; border-color: var(--firefly); }
-    .pict { width: clamp(64px, 12vw, 96px); height: clamp(64px, 12vw, 96px); border-radius: 14px; background: var(--white); color: var(--night); display: grid; place-items: center; }
-    .pict svg { width: 70%; height: 70%; }
-    .eyebrow { font-family: "PT Mono", monospace; color: var(--firefly); letter-spacing: 0.16em; font-size: 0.95rem; margin: 0 0 4px; text-transform: uppercase; }
-    h1 { font-size: clamp(2.2rem, 7vw, 4rem); line-height: 1.1; margin: 0 0 10px; }
-    h2 { font-size: clamp(1.5rem, 4vw, 2.1rem); line-height: 1.2; margin: 0 0 6px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-    h2 .arrow { color: var(--firefly); font-family: "PT Mono", monospace; }
-    p { margin: 0 0 10px; font-size: 1.15rem; color: var(--muted); max-width: 62ch; }
-    .listen { font-size: 0.95rem; padding: 6px 12px; margin-top: 6px; }
-    .listen[hidden] { display: none; }
+    button:hover, .btn:hover { background: var(--white); color: var(--night); border-color: var(--white); }
+    .primary { background: var(--firefly); color: var(--night); border-color: var(--firefly); }
+    .primary:hover { background: #f4ff9c; color: var(--night); border-color: #f4ff9c; }
+    button.listen { display: none; margin-top: 1.15rem; font-weight: 400; }
+    body.has-speech button.listen { display: inline-flex; }
+    .hero { display: grid; gap: 1.75rem; align-items: center; padding: 1.25rem 0 3rem; }
+    .way { width: 2rem; height: 2rem; color: var(--firefly); display: block; margin-bottom: 0.85rem; }
+    h1 { font-size: clamp(2.5rem, 5.4vw, 4.6rem); line-height: 0.98; letter-spacing: -0.03em; margin: 0; max-width: 12em; }
+    h2 { font-size: clamp(1.85rem, 4vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; margin: 0.35rem 0 0.85rem; max-width: 16ch; }
+    .sub { margin: 0.9rem 0 0; font-size: clamp(1.15rem, 2vw, 1.35rem); color: var(--muted); max-width: 28ch; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.4rem; }
     figure { margin: 0; }
-    video { width: 100%; height: auto; border-radius: 12px; background: #0e1116; display: block; border: 2px solid var(--line); }
-    figcaption { font-family: "PT Mono", monospace; font-size: 0.9rem; color: var(--muted); margin-top: 8px; }
-    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 0 20px; }
-    .status { width: 100%; border-collapse: collapse; font-size: 1rem; }
-    .status th, .status td { text-align: left; padding: 10px 8px; border-top: 2px solid var(--line); vertical-align: top; }
-    .status th { color: var(--firefly); font-family: "PT Mono", monospace; font-weight: 400; }
-    .tag { font-family: "PT Mono", monospace; font-size: 0.85rem; padding: 2px 8px; border-radius: 8px; border: 2px solid currentColor; white-space: nowrap; }
-    .ok { color: var(--firefly); } .todo { color: #9fd0ff; }
-    .table-wrap { overflow-x: auto; }
-    footer { padding: 28px 0 40px; font-family: "PT Mono", monospace; color: var(--muted); font-size: 0.95rem; }
-    @media (max-width: 520px) { .sign { grid-template-columns: 1fr; } }
+    video { width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 18px; background: #0e1116; display: block; }
+    figcaption { font-family: "PT Mono", monospace; font-size: 0.92rem; color: var(--muted); margin-top: 0.65rem; }
+    .blade { padding: 3.5rem 0; border-top: 3px solid var(--white); }
+    .signrow { display: flex; align-items: center; gap: 0.75rem; }
+    .pict { width: 3.25rem; height: 3.25rem; border-radius: 14px; background: var(--white); color: var(--night); display: grid; place-items: center; flex: none; }
+    .pict svg { width: 1.7rem; height: 1.7rem; }
+    .steps { list-style: none; margin: 0.4rem 0 0; padding: 0; display: grid; gap: 1.15rem; }
+    .steps li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.85rem; align-items: center; }
+    .steps p { margin: 0; font-size: 1.2rem; max-width: 42ch; overflow-wrap: break-word; }
+    .steps b { color: var(--white); }
+    .nudge { width: 1.6rem; height: 1.6rem; color: var(--firefly); flex: none; }
+    .nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; margin: 0.4rem 0 1.35rem; }
+    .nums p { margin: 0; max-width: none; }
+    .nums strong { display: block; font-size: clamp(3rem, 8vw, 5.25rem); line-height: 0.9; letter-spacing: -0.03em; color: var(--firefly); }
+    .nums span { display: block; margin-top: 0.35rem; font-family: "PT Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.95rem; color: var(--white); }
+    .plain { margin: 0; font-size: 1.2rem; color: var(--muted); max-width: 38ch; }
+    .plain + .plain { margin-top: 0.45rem; }
+    .plain b { color: var(--white); }
+    footer.blade { padding-bottom: 4.5rem; }
+    .fine { font-family: "PT Mono", monospace; font-size: 0.92rem; color: var(--muted); margin: 1.75rem 0 0; max-width: 46ch; }
+    @media (min-width: 880px) {
+      .hero { grid-template-columns: 1fr 1.05fr; min-height: calc(100svh - 5.5rem); padding-top: 0.5rem; }
+    }
+    @media (max-width: 700px) {
+      .wrap { padding: 0 1rem; }
+      .hero { padding-top: 0.85rem; }
+      .nums { grid-template-columns: 1fr; gap: 1.35rem; }
+      .actions .btn, .actions button { width: 100%; }
+      .blade { padding: 2.75rem 0; }
+      .steps li { grid-template-columns: auto minmax(0, 1fr); }
+      .steps .nudge { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
   </style>
+  <script>
+    try {
+      var savedScale = localStorage.getItem('phengos.scale');
+      if (savedScale === '1' || savedScale === '1.5' || savedScale === '2') {
+        document.documentElement.style.setProperty('--scale', savedScale);
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
+  <a class="skip" href="#how">Skip to the steps</a>
   <div class="wrap">
     <header class="bar">
-      <div class="mark"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#e6ff4f"/><circle cx="16" cy="16" r="6" fill="#050608"/></svg>Phengos</div>
+      <div class="mark">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#e6ff4f"/><circle cx="16" cy="16" r="6" fill="#050608"/></svg>
+        Phengos
+      </div>
       <div class="size" role="group" aria-label="Text size">
         <span>Text</span>
         <button type="button" data-scale="1" aria-pressed="true">100%</button>
@@ -66,82 +112,90 @@
     </header>
 
     <main>
-      <section class="sign hero" aria-labelledby="h-hero">
+      <section class="hero" aria-labelledby="h-hero">
         <div>
-          <p class="eyebrow">φέγγος / glow / Meta Quest, mixed reality</p>
-          <h1 id="h-hero">Lights hide in your room. Catch them any way you play.</h1>
-          <p>Small paper lights hide behind your real couch, under your table, in a ceiling corner. Point and pinch, look and hold, say "catch", or press one switch. If you can't see them, follow their hum.</p>
-          <button class="listen" type="button" data-say="h-hero">Listen</button>
+          <svg class="way" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <h1 id="h-hero">Twelve lights,<br> any way you play.</h1>
+          <p class="sub">They hide in your real room. Follow the hum if you can't see.</p>
+          <div class="actions">
+            <a class="btn primary" href="#clip" data-watch>Watch the round</a>
+            <a class="btn" href="evidence.html">See the evidence</a>
+          </div>
+          <button class="listen" type="button">Listen</button>
         </div>
-        <figure>
-          <video id="clip" controls playsinline preload="metadata" poster="media/phengos-poster.jpg">
+        <figure id="clip">
+          <video id="clip-video" controls playsinline preload="metadata" poster="media/phengos-poster.jpg">
             <source src="media/phengos-whoa.mp4" type="video/mp4">
             <track kind="captions" src="media/phengos-whoa.vtt" srclang="en" label="English" default>
           </video>
-          <figcaption>Real emulator footage (Meta Immersive Web Emulator, Quest 3 profile, synthetic living room). Captions on.</figcaption>
+          <figcaption id="clip-cap">Emulator, Quest 3. Captions on.</figcaption>
         </figure>
       </section>
 
-      <div class="grid2">
-        <section class="sign" aria-labelledby="h-point">
-          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 26V10a3 3 0 0 1 6 0v12"/><path d="M24 22v-3a3 3 0 0 1 6 0v4"/><path d="M30 23a3 3 0 0 1 6 0v6c0 8-5 13-12 13s-11-4-12-9l-2-7a3 3 0 0 1 5-2l3 4"/></svg></div>
-          <div><h2 id="h-point">Point <span class="arrow">→</span></h2><p>Aim your hand ray at a light and pinch. It floats to your palm.</p><button class="listen" type="button" data-say="h-point">Listen</button></div>
-        </section>
-        <section class="sign" aria-labelledby="h-look">
-          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><circle cx="24" cy="24" r="6"/></svg></div>
-          <div><h2 id="h-look">Look <span class="arrow">↑</span></h2><p>Hold your view on a light for one second. On Quest 3 this is head-gaze, built by us and labelled "Look (head)": Quest 3 has no eye tracking. On Meta VR Glasses it follows your eyes.</p><button class="listen" type="button" data-say="h-look">Listen</button></div>
-        </section>
-        <section class="sign" aria-labelledby="h-switch">
-          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4"><rect x="6" y="14" width="36" height="20" rx="10"/><circle cx="32" cy="24" r="6" fill="currentColor"/></svg></div>
-          <div><h2 id="h-switch">One switch <span class="arrow">↻</span></h2><p>The outline steps from light to light. Any pinch, from either hand, catches the outlined one. A long pinch opens the menu.</p><button class="listen" type="button" data-say="h-switch">Listen</button></div>
-        </section>
-        <section class="sign" aria-labelledby="h-voice">
-          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><rect x="17" y="6" width="14" height="24" rx="7"/><path d="M10 22a14 14 0 0 0 28 0M24 36v6"/></svg></div>
-          <div><h2 id="h-voice">Voice, if you like <span class="arrow">→</span></h2><p>Nine words: catch, next, back, hint, repeat, pause, resume, menu, louder. Recognised on your headset by Vosk. No audio is stored or sent. Never required.</p><button class="listen" type="button" data-say="h-voice">Listen</button></div>
-        </section>
-        <section class="sign" aria-labelledby="h-listen">
-          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M8 18h8l10-8v28l-10-8H8z"/><path d="M32 17a9 9 0 0 1 0 14M37 12a16 16 0 0 1 0 24"/></svg></div>
-          <div><h2 id="h-listen">Follow the hum <span class="arrow">←</span></h2><p>Each light hums from where it hides. Higher means nearer the ceiling. The hum pulses faster as you aim closer. Every sound has a caption: "hum, left, low".</p><button class="listen" type="button" data-say="h-listen">Listen</button></div>
-        </section>
-        <section class="sign" aria-labelledby="h-contrast">
-          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4"><circle cx="24" cy="24" r="18"/><path d="M24 6a18 18 0 0 1 0 36z" fill="currentColor"/></svg></div>
-          <div><h2 id="h-contrast">High contrast <span class="arrow">↓</span></h2><p>Your real walls and furniture are redrawn as bold yellow or white outlines on black, and the lights become solid yellow glows. Geometry only: no app can recolour passthrough.</p><button class="listen" type="button" data-say="h-contrast">Listen</button></div>
-        </section>
-      </div>
-
-      <section class="sign" aria-labelledby="h-room">
-        <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"><path d="M6 40V26a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v14M6 32h36M10 22v-6a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v6"/><circle cx="36" cy="9" r="4" fill="currentColor"/></svg></div>
-        <div>
-          <h2 id="h-room">Your room is the level <span class="arrow">→</span></h2>
-          <p>Phengos reads the room your headset already scanned: furniture with its labels, walls, ceiling. Each light hides where you can just see part of it from your seat, inside a comfortable turn. Depth occlusion makes it really disappear behind your couch. Three rounds a night: 5, 8 and 12 lights. Every light you catch rises to your ceiling and joins a constellation that grows night after night.</p>
-          <button class="listen" type="button" data-say="h-room">Listen</button>
+      <section class="blade" id="how" aria-labelledby="h-how">
+        <div class="signrow">
+          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M6 40V26a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v14M6 32h36"/><circle cx="36" cy="10" r="4" fill="currentColor" stroke="none"/></svg></div>
+          <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
+        <h2 id="h-how">Three steps</h2>
+        <ol class="steps">
+          <li>
+            <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M8 38V22h32v16M8 30h32"/><path d="M14 22v-6h20v6"/></svg></div>
+            <p><b>Hide.</b> A paper light tucks behind the couch.</p>
+            <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </li>
+          <li>
+            <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><circle cx="24" cy="24" r="6"/></svg></div>
+            <p><b>Catch.</b> Point, look, speak, or one switch.</p>
+            <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </li>
+          <li>
+            <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5"><circle cx="24" cy="24" r="5" fill="currentColor" stroke="none"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l4 4M33 33l4 4M37 11l-4 4M15 33l-4 4" stroke-linecap="round"/></svg></div>
+            <p><b>Rise.</b> Caught lights become stars on your ceiling.</p>
+            <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </li>
+        </ol>
+        <button class="listen" type="button">Listen</button>
       </section>
 
-      <section class="sign" aria-labelledby="h-honest">
-        <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 25l9 9 19-20"/></svg></div>
-        <div>
-          <h2 id="h-honest">What is tested, and what is not yet <span class="arrow">↓</span></h2>
-          <p>Tested in the Meta Immersive Web Emulator. Not yet measured on a headset.</p>
-          <div class="table-wrap">
-            <table class="status">
-              <thead><tr><th scope="col">Part</th><th scope="col">Status</th></tr></thead>
-              <tbody>
-                <tr><td>Every way to play finishes a round on its own</td><td><span class="tag ok">emulator</span></td></tr>
-                <tr><td>Voice through the real recogniser (recorded test clip)</td><td><span class="tag ok">emulator</span></td></tr>
-                <tr><td>Hiding spots, dwell, scanning, voice grammar</td><td><span class="tag ok">unit tests</span></td></tr>
-                <tr><td>Microphone inside an immersive session, Vosk CPU on Quest</td><td><span class="tag todo">needs a headset</span></td></tr>
-                <tr><td>Depth occlusion at couch edges, 72 fps, head-gaze comfort</td><td><span class="tag todo">needs a headset</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <button class="listen" type="button" data-say="h-honest">Listen</button>
+      <section class="blade" aria-labelledby="h-proof">
+        <div class="signrow">
+          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 25l9 9 19-20"/></svg></div>
+          <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
+        <h2 id="h-proof">Proof</h2>
+        <div class="nums">
+          <p><strong>12</strong> <span>Lights</span></p>
+          <p><strong>4</strong> <span>Ways</span></p>
+          <p><strong>3</strong> <span>Rounds</span></p>
+        </div>
+        <a class="btn" href="evidence.html">See the evidence</a>
+        <button class="listen" type="button">Listen</button>
+      </section>
+
+      <section class="blade" aria-labelledby="h-live">
+        <div class="signrow">
+          <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5"><circle cx="24" cy="24" r="16"/><path d="M24 8a16 16 0 0 1 0 32z" fill="currentColor"/></svg></div>
+          <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 id="h-live">Live versus setup</h2>
+        <p class="plain"><b>Live.</b> In the emulator, each way finishes a round.</p>
+        <p class="plain"><b>Setup required.</b> Scan your room on a Quest. Mic, depth and frame rate are still unmeasured.</p>
+        <button class="listen" type="button">Listen</button>
       </section>
     </main>
 
-    <footer>
-      Phengos. Meta VR Start 2026, Gaming track. MIT licence. Fonts: Lexend and PT Mono (SIL Open Font License).
+    <footer class="blade" aria-labelledby="h-foot">
+      <div class="signrow">
+        <div class="pict" aria-hidden="true"><svg viewBox="0 0 48 48" fill="currentColor"><path d="M16 12l20 12-20 12z"/></svg></div>
+        <svg class="nudge" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16h20M18 8l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2 id="h-foot">Watch one round.</h2>
+      <p class="plain">Captions are on. The footage is from the emulator.</p>
+      <div class="actions">
+        <a class="btn primary" href="#clip" data-watch>Watch the round</a>
+      </div>
+      <p class="fine">Phengos · Meta VR Start 2026 · MIT · Lexend and PT Mono, SIL Open Font License</p>
     </footer>
   </div>
   <script>
@@ -153,17 +207,44 @@
         try { localStorage.setItem('phengos.scale', v); } catch (e) {}
       }
       buttons.forEach(function (b) { b.addEventListener('click', function () { setScale(b.dataset.scale); }); });
-      try { var saved = localStorage.getItem('phengos.scale'); if (saved) setScale(saved); } catch (e) {}
-      var canSpeak = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function';
-      document.querySelectorAll('.listen').forEach(function (btn) {
-        if (!canSpeak) { btn.hidden = true; return; }
-        btn.addEventListener('click', function () {
-          var section = btn.closest('section');
-          var text = Array.prototype.map.call(section.querySelectorAll('h1, h2, p'), function (n) { return n.textContent; }).join('. ');
-          speechSynthesis.cancel();
-          speechSynthesis.speak(new SpeechSynthesisUtterance(text.replace(/[→←↑↓↻]/g, '')));
+      var current = '1';
+      try {
+        var saved = localStorage.getItem('phengos.scale');
+        if (saved === '1' || saved === '1.5' || saved === '2') current = saved;
+      } catch (e) {}
+      setScale(current);
+
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var video = document.getElementById('clip-video');
+      var cap = document.getElementById('clip-cap');
+      function showCaptions() {
+        if (video.textTracks && video.textTracks[0]) video.textTracks[0].mode = 'showing';
+      }
+      video.addEventListener('loadedmetadata', showCaptions);
+      video.addEventListener('error', function () {
+        cap.textContent = 'The clip did not load. Replay it from the emulator recording.';
+      });
+      document.querySelectorAll('[data-watch]').forEach(function (el) {
+        el.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          showCaptions();
+          document.getElementById('clip').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+          var play = video.play();
+          if (play && play.catch) play.catch(function () { cap.textContent = 'Press play on the clip. Captions are on.'; });
         });
       });
+
+      if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function') {
+        document.body.classList.add('has-speech');
+        document.querySelectorAll('.listen').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var section = btn.closest('section') || btn.closest('footer');
+            var text = Array.prototype.map.call(section.querySelectorAll('h1, h2, p'), function (n) { return n.textContent; }).join('. ');
+            speechSynthesis.cancel();
+            speechSynthesis.speak(new SpeechSynthesisUtterance(text.replace(/\s+/g, ' ').trim()));
+          });
+        });
+      }
     })();
   </script>
 </body>

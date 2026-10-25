@@ -31,7 +31,7 @@ sound only, contrast (off / yellow / white), voice.
 ```
 packages/core     pure TypeScript game logic + Vitest (room model, hiding spots, dwell, scanner, voice grammar, hum, captions)
 packages/app      the IWSDK app (systems in src/systems, UIKitML panels in public/ui, e2e in e2e/)
-packages/landing  one-page site in the brand (wayfinding signage), plays the real emulator clip with captions
+packages/landing  short sign in the brand (wayfinding signage), plus an evidence page. The hero plays the real emulator clip with captions
 scripts/          fetch-vosk-model.sh (downloads + checks + repacks the Vosk model)
 TESTING.md        real test counts and emulator gates (84 unit tests, 46 emulator checks, M1 numbers)
 e2e/results/      JSON results and screenshots from the emulator run

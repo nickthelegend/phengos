@@ -1,16 +1,16 @@
 {
   "scenario": "perf",
-  "seconds": 20.266,
+  "seconds": 20.163,
   "passed": 6,
   "failed": 0,
   "results": [
     {
-      "name": "600-frame run recorded (632 frames)",
+      "name": "600-frame run recorded (623 frames)",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "p95 CPU <= 4 ms (relative proxy): 1.4 ms",
+      "name": "p95 CPU <= 4 ms (relative proxy): 1.5 ms",
       "ok": true,
       "detail": ""
     },

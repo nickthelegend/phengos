@@ -1,6 +1,6 @@
 {
   "scenario": "hands",
-  "seconds": 19.036,
+  "seconds": 18.247,
   "passed": 7,
   "failed": 0,
   "results": [
@@ -17,7 +17,7 @@
     {
       "name": "round 1 hides 5 lights",
       "ok": true,
-      "detail": "kinds: behind@couch, behind@lamp, behind@table, behind@lamp, behind@shelf"
+      "detail": "kinds: behind@couch, behind@table, behind@couch, behind@lamp, behind@shelf"
     },
     {
       "name": "ray pinches needed: 5 for 5 lights",

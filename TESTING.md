@@ -2,7 +2,7 @@
 
 Two layers, both run against real code: pure-logic unit tests (Vitest), and end-to-end runs of the real app in the
 Meta Immersive Web Emulator (IWER) driven through the IWSDK CLI (the same surface as the IWSDK MCP tools) with emulated
-hands, gaze and synthetic rooms. No app logic is mocked. Numbers below are from the run on **Oct 24, 2026**.
+hands, gaze and synthetic rooms. No app logic is mocked. Numbers below are from the run on **Oct 25, 2026**.
 
 ## Unit tests (`packages/core`, Vitest): 84 passed, 0 failed
 
@@ -56,15 +56,17 @@ eye gaze on the Glasses (`glasses`, `glassesdwell`). Voice is optional by design
 600-frame scripted run on the **12-light round** with depth occlusion on the lights (`DepthOccludable`, hard mode, 12
 entities and nothing else), head and hand ray sweeping across the lights. CPU time per frame = ECS systems + the render
 call, from `performance.now()` inside the app; draw calls and triangles from `renderer.info`. Desktop Chrome on an Apple
-M4 under IWER, **not a headset measurement**. `e2e/results/perf-report.json`, `browser-profile.json` (IWSDK
-`browser_profile`, marked `calibrated: false`).
+M4 under IWER, **not a headset measurement**. `e2e/results/perf-report.json`. `browser-profile.json` is the 24 Oct IWSDK
+`browser_profile` snapshot, still marked `calibrated: false` (this run did not recapture it).
 
 | Metric | Result | Gate |
 |---|---|---|
-| CPU per frame, p95 | **1.4 ms** (p50 1.2 ms, max 2.0 ms) | ≤ 4 ms ✓ |
+| CPU per frame, p95 | **1.5 ms** (p50 1.2 ms, max 5.3 ms) | ≤ 4 ms ✓ |
 | Draw calls per stereo frame | **86** | ≤ 100 (shared M1 gate) ✓ |
 | Draw calls per eye view | **43** | ≤ 70 (spec) ✓. IWER renders the two views as separate passes, so every draw counts twice per frame. If the 70 budget is meant per stereo frame without multiview, this is over by 16: the HUD and tabs (11 per view) are the next thing to merge |
 | Triangles | **21,092** max | ≤ 120k ✓ |
+
+The 5.3 ms figure is the single highest frame. The gate is the p95 of the 600-frame window (623 frames were recorded).
 
 Each light is one billboard draw call (a paper lantern painted into its own glow), so 12 lights cost 12 calls per view.
 

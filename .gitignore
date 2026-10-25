@@ -8,3 +8,5 @@ coverage/
 .iwsdk/
 e2e/out/
 packages/app/public/models/
+# Loom's local state (event log, attachments, machine config)
+.loom/

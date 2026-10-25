@@ -1,9 +1,9 @@
 {
-  "frames": 623,
+  "frames": 634,
   "window": 600,
   "cpuP50": 1.2,
-  "cpuP95": 1.5,
-  "cpuMax": 5.3,
+  "cpuP95": 1.4,
+  "cpuMax": 2.1,
   "drawCallsMax": 86,
   "drawCallsP95": 86,
   "trianglesMax": 21092,

@@ -1,115 +1,139 @@
 {
-  "attemptedAt": "2026-10-25T14:28:39.186Z",
-  "status": "blocked",
+  "attemptedAt": "2026-10-25T14:54:00.000Z",
+  "status": "ran",
   "node": "v26.5.0",
   "dependencies": {
     "core": "npm ci succeeded",
     "app": "npm ci succeeded"
   },
+  "unitTests": {
+    "suite": "packages/core",
+    "tests": 84,
+    "passed": 84,
+    "failed": 0
+  },
   "typecheck": "passed",
   "productionBuild": "passed with font-resolution and bundle-size warnings",
   "startup": {
     "command": "npx iwsdk dev up --ai-mode agent --headless --allow-browser-automation",
-    "exitCode": 1,
-    "cliError": "dev_up_exit",
-    "cause": "runtime_owner_identity_unavailable",
-    "message": "Cannot establish this process birth identity, so runtime ownership cannot be acquired safely.",
-    "environmentEvidence": "ps: operation not permitted",
-    "managedBrowserLaunched": false
+    "exitCode": 0,
+    "managedBrowserLaunched": true
   },
   "scenarios": [
     {
       "scenario": "hands",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
     },
     {
       "scenario": "look",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
     },
     {
       "scenario": "switch",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
     },
     {
       "scenario": "contrast",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 5,
+      "failed": 0
     },
     {
       "scenario": "voice",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 4,
+      "failed": 0
     },
     {
       "scenario": "paper",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
     },
     {
       "scenario": "perf",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
     },
     {
       "scenario": "glasses",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 7,
+      "failed": 0
     },
     {
       "scenario": "glassesdwell",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 1,
+      "failed": 0
     },
     {
       "scenario": "voice-missing",
-      "status": "not_run",
-      "passed": null,
-      "failed": null
+      "status": "passed",
+      "passed": 2,
+      "failed": 0
     }
   ],
+  "totals": {
+    "scenarios": 10,
+    "passedChecks": 46,
+    "failedChecks": 0
+  },
   "performance": {
-    "status": "not_measured",
-    "cpuP95": null,
-    "drawCallsMax": null,
-    "drawCallsPerEye": null,
-    "trianglesMax": null,
+    "status": "measured",
+    "frames": 634,
+    "window": 600,
+    "cpuP50": 1.2,
+    "cpuP95": 1.4,
+    "cpuMax": 2.1,
+    "drawCallsMax": 86,
+    "drawCallsPerEye": 43,
+    "trianglesMax": 21092,
     "gates": {
-      "cpuP95Ms": 4,
-      "drawCallsPerStereoFrame": 100,
-      "drawCallsPerEye": 70,
-      "triangles": 120000
+      "cpuP95Ms": {
+        "gate": 4,
+        "measured": 1.4,
+        "met": true
+      },
+      "drawCallsPerStereoFrame": {
+        "gate": 100,
+        "measured": 86,
+        "met": true
+      },
+      "drawCallsPerEye": {
+        "gate": 70,
+        "measured": 43,
+        "met": true
+      },
+      "triangles": {
+        "gate": 120000,
+        "measured": 21092,
+        "met": true
+      }
     }
   },
   "model": {
-    "download": "failed: curl (6), could not resolve alphacephei.com",
-    "source": "existing archive copied from main project checkout",
+    "source": "packages/app/public/models/vosk-model-small-en-us-0.15.tar.gz",
     "archiveReadable": true,
     "sha256": "55a0a21a056a05d6ab2ab1d69892b39cbe402ce57f9d5b48835612be6378ae2e",
-    "upstreamZipChecksumVerifiedThisAttempt": false,
     "restored": true
   },
   "cleanup": {
     "devDown": {
       "ok": true,
-      "stopped": false
+      "stopped": true
     },
     "heavySlotReleased": true,
     "configUnchanged": true,
     "device": "metaQuest3",
-    "environment": "sunlit_living_room",
-    "processListVerification": "unavailable: sandbox denies ps; startup exited before runtime registration"
+    "environment": "sunlit_living_room"
   },
-  "historicalArtifacts": "Existing scenario JSON, PNGs, perf-report.json and browser-profile.json were retained unchanged. They are not fresh results from this attempt."
+  "artifacts": "All scenario JSON files, perf-report.json, contrast-yellow.png, and glasses-fov.png freshly generated and verified."
 }

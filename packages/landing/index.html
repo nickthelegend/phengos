@@ -34,7 +34,7 @@
     button, .btn {
       font: inherit; font-weight: 700; color: var(--white); background: transparent;
       border: 2px solid var(--white); border-radius: 999px; padding: 0.7rem 1.15rem; min-height: 2.75rem;
-      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; text-align: center;
     }
     .size button { min-width: 2.75rem; padding-inline: 0.75rem; }
     button[aria-pressed="true"] { background: var(--firefly); color: var(--night); border-color: var(--firefly); }
@@ -45,6 +45,7 @@
     body.has-speech button.listen { display: inline-flex; }
     .hero { display: grid; gap: 1.75rem; align-items: center; padding: 1.25rem 0 3rem; }
     .way { width: 2rem; height: 2rem; color: var(--firefly); display: block; margin-bottom: 0.85rem; }
+    h1, h2, p, li { overflow-wrap: break-word; }
     h1 { font-size: clamp(2.5rem, 5.4vw, 4.6rem); line-height: 0.98; letter-spacing: -0.03em; margin: 0; max-width: 12em; }
     h2 { font-size: clamp(1.85rem, 4vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; margin: 0.35rem 0 0.85rem; max-width: 16ch; }
     .sub { margin: 0.9rem 0 0; font-size: clamp(1.15rem, 2vw, 1.35rem); color: var(--muted); max-width: 28ch; }
@@ -169,7 +170,9 @@
           <p><strong>4</strong> <span>Ways</span></p>
           <p><strong>3</strong> <span>Rounds</span></p>
         </div>
-        <a class="btn" href="evidence.html">See the evidence</a>
+        <div class="actions">
+          <a class="btn" href="evidence.html">See the evidence</a>
+        </div>
         <button class="listen" type="button">Listen</button>
       </section>
 
@@ -214,7 +217,6 @@
       } catch (e) {}
       setScale(current);
 
-      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var video = document.getElementById('clip-video');
       var cap = document.getElementById('clip-cap');
       function showCaptions() {
@@ -228,6 +230,7 @@
         el.addEventListener('click', function (ev) {
           ev.preventDefault();
           showCaptions();
+          var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           document.getElementById('clip').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
           var play = video.play();
           if (play && play.catch) play.catch(function () { cap.textContent = 'Press play on the clip. Captions are on.'; });

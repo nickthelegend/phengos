@@ -2,7 +2,54 @@
 
 Two layers, both run against real code: pure-logic unit tests (Vitest), and end-to-end runs of the real app in the
 Meta Immersive Web Emulator (IWER) driven through the IWSDK CLI (the same surface as the IWSDK MCP tools) with emulated
-hands, gaze and synthetic rooms. No app logic is mocked. Numbers below are from the run on **Oct 25, 2026**.
+hands, gaze and synthetic rooms. No app logic is mocked. The completed-run numbers below are the previously published
+**Oct 25, 2026** record; they were **not reproduced by the fresh attempt** described next.
+
+## Fresh emulator attempt: blocked (Oct 25, 2026, 14:28 UTC)
+
+**No scenarios ran and no fresh performance samples or screenshots were captured.** IWSDK exited before registering
+the dev runtime with `dev_up_exit`: `Cannot establish this process birth identity, so runtime ownership cannot be
+acquired safely.` On macOS its ownership check invokes `ps -p <pid> -o lstart=`; this sandbox rejects `ps` with
+`operation not permitted`. This is an environment blocker, not an observed app or core test failure.
+
+`hands`, `look`, `switch`, `contrast`, `voice`, `paper`, `perf`, `glasses`, `glassesdwell`, and `voice-missing` are all
+**not run**: pass/fail counts are unavailable, rather than a passing zero-check run. Fresh status is recorded in
+`e2e/results/run-status.json` (copied from `e2e/out/run-status.json`). Existing per-scenario JSON and PNGs remain historical.
+
+| Fresh metric | Result | Gate |
+|---|---|---|
+| CPU per frame, p95 | Not measured | ≤ 4 ms |
+| Draw calls per stereo frame | Not measured | ≤ 100 |
+| Draw calls per eye view | Not measured | ≤ 70 |
+| Triangles | Not measured | ≤ 120k |
+
+Setup used Node **26.5.0**. Both `npm ci --prefix packages/core` and `npm ci --prefix packages/app` succeeded.
+`npm --prefix packages/app run typecheck` and `npm --prefix packages/app run build` passed; the build reported font
+resolution and bundle-size warnings. Core unit tests were not rerun as part of this emulator task.
+`./scripts/fetch-vosk-model.sh` failed to resolve `alphacephei.com`; the existing real Vosk archive from the main
+checkout was copied into this worktree and was readable with `tar`. Re-running the fetch script then reported
+`already present`. The upstream ZIP checksum was not reverified during this attempt. The model remains present.
+
+The heavy-session shell acquired the slot and installed an EXIT trap before attempting startup. The executed runtime
+commands were equivalent to the following (startup failed, so no scenario commands followed):
+
+```bash
+ROOT="$PWD"
+SLOT='/Volumes/Extreme SSD/Projects/grokbot/tools/heavy-slot.sh'
+"$SLOT" acquire phengos
+cleanup() {
+  (cd "$ROOT/packages/app" && npx iwsdk dev down)
+  "$SLOT" release phengos
+}
+trap cleanup EXIT
+cd packages/app
+npx iwsdk dev up --ai-mode agent --headless --allow-browser-automation || exit 1
+```
+
+Cleanup returned `ok: true, stopped: false` from `dev down` and released the heavy slot. The config diff is empty:
+`metaQuest3` / `sunlit_living_room` remain selected. No managed Chrome launched. A final process-list check was also
+denied by the sandbox, so absence of leftover processes could not be independently verified. A fresh full suite is
+still required in an environment that permits IWSDK's process-ownership checks and managed browser launch.
 
 ## Unit tests (`packages/core`, Vitest): 84 passed, 0 failed
 
@@ -19,11 +66,13 @@ npm --prefix packages/core test
 | `room.test.ts` | 6 | Planes classified by orientation and height (floor, ceiling, walls, surfaces), no-ceiling and empty fallbacks, plane area, oriented-box helpers |
 | `misc.test.ts` | 15 | Hum pitch by height and pulse by aim; direction captions ("hum, left, low"); settings clamping; rounds of 5/8/12; catching once per light by any method; next/back cycling; first input picks the mode; constellation stars; daily seed |
 
-## End-to-end in IWER: 46 checks passed, 0 failed
+## Previous completed end-to-end run in IWER: 46 checks passed, 0 failed
 
 Dev server in agent mode (headless Chromium + IWER), Quest 3 profile and Meta VR Glasses profile, IWER's built-in
 `sunlit_living_room` (furniture as `XRMesh` with semantic labels, walls/floor/ceiling as `XRPlane`). The headset is set
-to a seated eye height (1.15 m). Results: `e2e/results/*.json`.
+to a seated eye height (1.15 m). Historical results: `e2e/results/<scenario>.json`.
+The following is the prior suite sequence, not commands reached in the blocked fresh attempt. It requires the heavy
+slot and EXIT cleanup shown above. Restore the Quest 3 profile before `voice-missing`, and restore the model afterwards.
 
 ```bash
 cd packages/app
@@ -51,7 +100,7 @@ npx iwsdk dev down
 The four ways to play each finish a round **on their own**: hands (`hands`), head-gaze (`look`), one switch (`switch`),
 eye gaze on the Glasses (`glasses`, `glassesdwell`). Voice is optional by design and is shown catching and outlining.
 
-## M1 performance gate (relative proxy, unverified on hardware)
+## Previous M1 performance gate (historical relative proxy, unverified on hardware)
 
 600-frame scripted run on the **12-light round** with depth occlusion on the lights (`DepthOccludable`, hard mode, 12
 entities and nothing else), head and hand ray sweeping across the lights. CPU time per frame = ECS systems + the render
@@ -63,7 +112,7 @@ M4 under IWER, **not a headset measurement**. `e2e/results/perf-report.json`. `b
 |---|---|---|
 | CPU per frame, p95 | **1.5 ms** (p50 1.2 ms, max 5.3 ms) | ≤ 4 ms ✓ |
 | Draw calls per stereo frame | **86** | ≤ 100 (shared M1 gate) ✓ |
-| Draw calls per eye view | **43** | ≤ 70 (spec) ✓. IWER renders the two views as separate passes, so every draw counts twice per frame. If the 70 budget is meant per stereo frame without multiview, this is over by 16: the HUD and tabs (11 per view) are the next thing to merge |
+| Draw calls per eye view | **43** | ≤ 70 (spec) ✓. IWER renders the two views as separate passes, so every draw counts twice per frame. |
 | Triangles | **21,092** max | ≤ 120k ✓ |
 
 The 5.3 ms figure is the single highest frame. The gate is the p95 of the 600-frame window (623 frames were recorded).

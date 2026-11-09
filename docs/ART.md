@@ -20,3 +20,14 @@ Generated with ChatGPT's image model (via the Codex image tool on a ChatGPT plan
 | phengos-feature-1.webp | square 1024x1024: a person following a hum toward a light behind the couch |
 | phengos-feature-2.webp | square 1024x1024: a person saying a word and a light leaping into their hand |
 | phengos-feature-3.webp | square 1024x1024: a one-button switch lighting up a paper light |
+
+## Wave 2: film, social and onboarding
+
+| File | Prompt |
+|---|---|
+| phengos-film-title.webp | landscape 1536x1024: folded paper lights hiding around a dark cosy room; a cinematic title-card background for this product's demo film, its core metaphor at dusk, wide calm area in the center for a title added later |
+| phengos-social-square.webp | square 1024x1024: folded paper lights hiding around a dark cosy room; a bold social post image showing the product's single most exciting moment |
+| phengos-banner.webp | landscape 1536x512 wide banner: folded paper lights hiding around a dark cosy room; a panoramic strip of the product's world, low detail in the middle third |
+| phengos-onboard-1.webp | portrait 1024x1536: folded paper lights hiding around a dark cosy room; onboarding slide 1, a newcomer discovering the product's core idea |
+| phengos-onboard-2.webp | portrait 1024x1536: folded paper lights hiding around a dark cosy room; onboarding slide 2, the newcomer taking the main action for the first time |
+| phengos-loading.webp | transparent PNG with a real alpha channel, no background, no ground shadow, centered, 1024x1024: folded paper lights hiding around a dark cosy room; a tiny looping-friendly loading mascot or object from the product's world, centered |

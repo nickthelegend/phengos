@@ -90,3 +90,7 @@ within 2 ft, and no timed failure states.
 ## Licence
 
 MIT, Copyright (c) 2026 Nivesh Gajengi. Fonts under the SIL Open Font License; see ASSETS.md.
+
+## Art
+
+Art generated with ChatGPT (image generation); prompts and art direction in [docs/ART.md](docs/ART.md). The app ships WebP copies in `packages/app/public/art/`.

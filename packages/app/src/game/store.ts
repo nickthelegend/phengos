@@ -95,6 +95,8 @@ export class Store {
   nights = 0;
   /** Lights caught this frame by a pinch, so the switch pinch is not double-counted. */
   pinchConsumedAt = -1;
+  /** A caught light is flying to or glowing on your palm (the palm-up menu chip steps aside). */
+  palmBusy = false;
   /** The hand of the latest pinch, so a caught light lands on that palm. */
   lastHand: 'left' | 'right' | null = null;
   time = 0;
@@ -147,6 +149,8 @@ export interface AudioApi {
   unlock(): void;
   ping(id: string, strong?: boolean): void;
   chime(p: { x: number; y: number; z: number }): void;
+  /** A star landing on the ceiling: a soft rising sparkle from up there. */
+  sparkle?(p: { x: number; y: number; z: number }): void;
   state(): string;
 }
 

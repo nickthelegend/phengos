@@ -45,6 +45,7 @@ export class AudioSystem extends createSystem({}) {
       unlock: () => this.unlock(),
       ping: (id: string, strong = false) => this.ping(id, strong),
       chime: (p: { x: number; y: number; z: number }) => this.chime(p),
+      sparkle: (p: { x: number; y: number; z: number }) => this.sparkle(p),
       state: () => this.ctx?.state ?? 'not started',
     };
     const onStart = () => this.unlock();
@@ -63,11 +64,46 @@ export class AudioSystem extends createSystem({}) {
         this.master = this.ctx.createGain();
         this.master.gain.value = 0.9;
         this.master.connect(this.ctx.destination);
+        if (new URLSearchParams(location.search).has('recordAudio')) this.exposeRecorder(this.ctx, this.master);
       }
       if (this.ctx.state === 'suspended') void this.ctx.resume().catch(() => undefined);
     } catch (err) {
       console.warn('[phengos] audio unavailable:', err);
     }
+  }
+
+  /**
+   * Test-only (?recordAudio): tap the app's own mix so the film carries the real
+   * hums and chimes in sync with the screencast. Nothing is recorded unless a
+   * test script calls start(); the clip stays in the page until the script reads it.
+   */
+  private exposeRecorder(ctx: AudioContext, master: GainNode): void {
+    const dest = ctx.createMediaStreamDestination();
+    master.connect(dest);
+    let rec: MediaRecorder | null = null;
+    let chunks: Blob[] = [];
+    (window as unknown as { __phengosAudio: object }).__phengosAudio = {
+      state: () => ctx.state,
+      start: async () => {
+        if (ctx.state !== 'running') await ctx.resume().catch(() => undefined);
+        chunks = [];
+        rec = new MediaRecorder(dest.stream, { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 160_000 });
+        rec.ondataavailable = (e) => chunks.push(e.data);
+        rec.start(1000);
+        return { state: ctx.state, startedAt: performance.timeOrigin + performance.now() };
+      },
+      stop: () =>
+        new Promise<string>((resolve) => {
+          if (!rec) return resolve('');
+          rec.onstop = async () => {
+            const buf = new Uint8Array(await new Blob(chunks, { type: 'audio/webm' }).arrayBuffer());
+            let bin = '';
+            for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+            resolve(btoa(bin));
+          };
+          rec.stop();
+        }),
+    };
   }
 
   private makeVoice(id: string): Voice | null {
@@ -146,6 +182,31 @@ export class AudioSystem extends createSystem({}) {
       o.start(t);
       o.stop(t + decay + 0.05);
     }
+  }
+
+  /** A star lands: three quick rising bell partials from the ceiling, softer than the catch chime. */
+  private sparkle(p: { x: number; y: number; z: number }): void {
+    const ctx = this.ctx;
+    if (!ctx || !this.master) return;
+    const t0 = ctx.currentTime;
+    const pan = ctx.createPanner();
+    pan.panningModel = 'HRTF';
+    pan.positionX.value = p.x;
+    pan.positionY.value = p.y;
+    pan.positionZ.value = p.z;
+    pan.connect(this.master);
+    [1568, 2093, 2637, 3136].forEach((freq, i) => {
+      const t = t0 + i * 0.07;
+      const o = ctx.createOscillator();
+      o.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+      o.connect(g).connect(pan);
+      o.start(t);
+      o.stop(t + 0.95);
+    });
   }
 
   update(delta: number): void {

@@ -18,6 +18,8 @@ import { createDwellRing } from '../game/visuals.js';
 import { STORE_KEY, type Store, type Target } from '../game/store.js';
 
 const CONE_DEG = 2.5;
+/** Half the lantern's width (the glow around it does not count), metres. */
+const LANTERN_RADIUS = 0.15;
 
 export class LookSystem extends createSystem({}) {
   private store!: Store;
@@ -105,7 +107,7 @@ export class LookSystem extends createSystem({}) {
       this.tmp.sub(this.origin).normalize();
       const angle = (Math.acos(Math.min(1, Math.max(-1, this.tmp.dot(this.dir)))) * 180) / Math.PI;
       // Lights: the 2.5 degree cone plus the light's own angular radius.
-      const limit = t.kind === 'light' ? CONE_DEG + (Math.atan2(0.075, d) * 180) / Math.PI : Math.max(CONE_DEG, t.radiusDeg);
+      const limit = t.kind === 'light' ? CONE_DEG + (Math.atan2(LANTERN_RADIUS, d) * 180) / Math.PI : Math.max(CONE_DEG, t.radiusDeg);
       if (angle <= limit && angle < bestScore) {
         bestScore = angle;
         best = t;

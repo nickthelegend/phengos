@@ -55,7 +55,7 @@ export class WristSystem extends createSystem({ pressed: { required: [WristChip,
     const ref = this.xrManager.getReferenceSpace();
     const session = this.xrManager.getSession();
     let shown = false;
-    if (frame && ref && session && !this.store.menuOpen && this.store.inXR) {
+    if (frame && ref && session && !this.store.menuOpen && this.store.inXR && !this.store.palmBusy) {
       for (const src of session.inputSources) {
         const hand = src.hand;
         if (!hand || (src.handedness !== 'left' && src.handedness !== 'right')) continue;

@@ -4,9 +4,13 @@
  * ceiling constellation, hints, pause, and the ECS mirror used by the tests.
  */
 import {
+  Color,
   createSystem,
   DepthOccludable,
   Entity,
+  Group,
+  type Mesh,
+  type MeshBasicMaterial,
   Hovered,
   Pressed,
   Quaternion,
@@ -18,6 +22,15 @@ import {
   type CatchMethod,
   type Spot,
   NIGHT_ROUNDS,
+  PAYOFF,
+  PAYOFF_TOTAL_SEC,
+  arcPoint,
+  constellationEdges,
+  easeInOutSine,
+  easeOutCubic,
+  flightScale,
+  lineQuad,
+  starFlash,
   Round,
   captionFor,
   arrowFor,
@@ -33,16 +46,46 @@ import {
   vec,
 } from '@phengos/core';
 import { GameState, Light } from '../components.js';
-import { type LightVisual, COLORS, createChevron, createLightVisual, createStarField, setHighContrast } from '../game/visuals.js';
+import {
+  type LightVisual,
+  COLORS,
+  LIGHT_SIZE,
+  PALM_SIZE,
+  createBurst,
+  createChevron,
+  createConstellationLines,
+  createFlash,
+  createLightVisual,
+  createStarField,
+  createTrail,
+  setHighContrast,
+} from '../game/visuals.js';
 import { globalsOf, STORE_KEY, type Store } from '../game/store.js';
 import { loadSky, saveSky } from '../game/sky.js';
 
 interface Flight {
   from: Vector3;
   t: number;
-  stage: 'toPalm' | 'rest' | 'rise' | 'done';
+  stage: 'pop' | 'toPalm' | 'rest' | 'rise' | 'done';
   star: Vector3;
+  /** Key of the pending star this light becomes when it lands. */
+  starKey: string;
   hand: 'left' | 'right' | null;
+  trail: ReturnType<typeof createTrail>;
+}
+
+/** A short-lived effect: a shock ring or a flash, grown and faded, then removed. */
+interface Fx {
+  mesh: Mesh;
+  mat: MeshBasicMaterial;
+  t: number;
+  dur: number;
+  from: number;
+  to: number;
+  /** Face the head (billboard), or lie flat on the ceiling. */
+  facing: 'head' | 'down';
+  /** Scale envelope: 'grow' fades as it grows; 'star' follows the landing flash. */
+  curve: 'grow' | 'star';
 }
 
 interface LightRuntime {
@@ -70,6 +113,8 @@ export interface Controller {
 }
 
 const ONBOARD_ID = 'light-hello';
+const LINE_TONIGHT = new Color(0.9, 1.0, 0.31);
+const LINE_OLDER = new Color(0.75, 0.6, 0.38);
 
 /** `?round=N` starts the night at round N (used by the 12-light performance run). */
 function firstRound(): number {
@@ -96,10 +141,16 @@ export class GameSystem extends createSystem({
   private chevronUntil = 0;
   private chevronTarget: string | null = null;
   private stars = createStarField(400);
+  private lines = createConstellationLines(400);
+  private fxGroup = new Group();
+  private fx: Fx[] = [];
+  /** When the newest constellation line started drawing (-1: none). */
+  private lineAnimStart = -1;
+  private lineAnimating = false;
   private night = nightKey(new Date());
   private nightSeed = dailySeed(new Date());
   private nightPlays = 0;
-  private pendingStars: Array<{ id: string; u: number; v: number }> = [];
+  private pendingStars: Array<{ key: string; u: number; v: number }> = [];
   controller!: Controller;
   private lastHovered: string | null = null;
   private lastHoveredAt = -1;
@@ -110,8 +161,12 @@ export class GameSystem extends createSystem({
     this.stateEntity.addComponent(GameState, {});
     const chevronEntity = this.world.createTransformEntity(this.chevron, { persistent: true });
     chevronEntity.object3D!.name = 'hint-chevron';
-    const starsEntity = this.world.createTransformEntity(this.stars.points, { persistent: true });
+    const starsEntity = this.world.createTransformEntity(this.stars.mesh, { persistent: true });
     starsEntity.object3D!.name = 'ceiling-constellation';
+    const linesEntity = this.world.createTransformEntity(this.lines.mesh, { persistent: true });
+    linesEntity.object3D!.name = 'constellation-lines';
+    const fxEntity = this.world.createTransformEntity(this.fxGroup, { persistent: true });
+    fxEntity.object3D!.name = 'catch-fx';
     const params = new URLSearchParams(location.search);
     if (params.has('seed')) this.nightSeed = Number(params.get('seed')) >>> 0;
     if (params.has('fresh')) this.store.stars = [];
@@ -200,12 +255,12 @@ export class GameSystem extends createSystem({
     this.store.phase = 'onboarding';
     this.player.head.getWorldPosition(this.headPos);
     const fwd = this.headForward();
-    // The first light floats 20 degrees left of centre, a little low: in plain
-    // sight, but you have to choose to look at it.
-    const yaw = Math.atan2(-fwd.x, -fwd.z) + (20 * Math.PI) / 180;
+    // The first light floats 26 degrees left of centre, a little low: in plain
+    // sight, clear of the start card, but you have to choose to look at it.
+    const yaw = Math.atan2(-fwd.x, -fwd.z) + (26 * Math.PI) / 180;
     const dir = forwardFromYaw(yaw);
     const p = vec(this.headPos.x + dir.x * 1.4, this.headPos.y - 0.12, this.headPos.z + dir.z * 1.4);
-    const spot: Spot = { id: 'hello', kind: 'wall', position: p, host: 'air', visible: 1, yawDeg: -20, heightNorm: 0.45 };
+    const spot: Spot = { id: 'hello', kind: 'wall', position: p, host: 'air', visible: 1, yawDeg: -26, heightNorm: 0.45 };
     this.store.round = new Round([spot], -1);
     this.store.round.lights[0]!.id = ONBOARD_ID;
     this.spawn(this.store.round);
@@ -275,6 +330,10 @@ export class GameSystem extends createSystem({
 
   private clearLights(): void {
     for (const rt of this.runtimes.values()) {
+      if (rt.flight) {
+        this.fxGroup.remove(rt.flight.trail.points);
+        rt.flight.trail.dispose();
+      }
       if (rt.entity.active) rt.entity.dispose();
     }
     this.runtimes.clear();
@@ -300,8 +359,13 @@ export class GameSystem extends createSystem({
     if (rt.entity.hasComponent(DepthOccludable)) rt.entity.removeComponent(DepthOccludable);
     this.store.lightTargets.delete(id);
     this.setRing(id, null);
-    const star = this.starPositionFor(rt);
-    rt.flight = { from: rt.visual.root.position.clone(), t: 0, stage: 'toPalm', star, hand };
+    const { world: star, key: starKey } = this.starPositionFor(rt);
+    const trail = createTrail();
+    this.fxGroup.add(trail.points);
+    rt.flight = { from: rt.visual.root.position.clone(), t: 0, stage: 'pop', star, starKey, hand, trail };
+    // The pop where it hid: a shock ring and a flash, before it flies to you.
+    this.addFx('burst', rt.visual.root.position, 'head', 0.4, 2.2, 0.7);
+    this.addFx('flash', rt.visual.root.position, 'head', LIGHT_SIZE * 1.6, LIGHT_SIZE * 0.4, 0.5);
     globalsOf(this.world).audio?.chime(rt.spot.position);
     const how: Record<CatchMethod, string> = {
       point: 'pinch',
@@ -312,7 +376,8 @@ export class GameSystem extends createSystem({
       mouse: 'click',
     };
     this.store.say(`${this.describe('chime', rt.spot.position)} - caught by ${how[method]}`, arrowFor(this.dir(rt.spot.position)), 2.5);
-    if (round.done) this.roundEndAt = this.store.time + 2.6;
+    // The round ends once the last star has landed and its line is drawn.
+    if (round.done) this.roundEndAt = this.store.time + PAYOFF.popSec + PAYOFF_TOTAL_SEC + 0.4;
     return true;
   }
 
@@ -359,20 +424,75 @@ export class GameSystem extends createSystem({
 
   // ---------- constellation ----------
 
-  private starPositionFor(rt: LightRuntime): Vector3 {
+  /** Where this light's star will land on the ceiling (every light becomes a star, the first one too). */
+  private starPositionFor(rt: LightRuntime): { world: Vector3; key: string } {
     const c = this.store.ceiling;
     const info = this.store.roomInfo;
     const ceilY = (info?.ceilingY ?? 2.5) - 0.03;
-    if (!c) return new Vector3(rt.spot.position.x, ceilY, rt.spot.position.z);
     const p = rt.spot.position;
-    const u = (p.x - c.origin.x) * c.xAxis.x + (p.z - c.origin.z) * c.xAxis.z;
-    const v = (p.x - c.origin.x) * c.zAxis.x + (p.z - c.origin.z) * c.zAxis.z;
-    const [star] = starsFor(this.night, [{ id: `${this.nightPlays}:${this.store.roundIndex}:${rt.id}`, position: vec(u, 0, v) }], [
+    const u = c ? (p.x - c.origin.x) * c.xAxis.x + (p.z - c.origin.z) * c.xAxis.z : p.x;
+    const v = c ? (p.x - c.origin.x) * c.zAxis.x + (p.z - c.origin.z) * c.zAxis.z : p.z;
+    const key = `${this.nightPlays}:${this.store.phase === 'onboarding' ? 'hello' : this.store.roundIndex}:${rt.id}`;
+    const [star] = starsFor(this.night, [{ id: key, position: vec(u, 0, v) }], [
       ...this.store.stars,
       ...this.pendingStars.map((s) => ({ night: this.night, x: s.u, z: s.v, magnitude: 1 })),
     ]);
-    if (rt.id !== ONBOARD_ID) this.pendingStars.push({ id: rt.id, u: star!.x, v: star!.z });
-    return this.ceilingToWorld(star!.x, star!.z, ceilY);
+    this.pendingStars.push({ key, u: star!.x, v: star!.z });
+    return { world: this.ceilingToWorld(star!.x, star!.z, ceilY), key };
+  }
+
+  private magnitudeOf(u: number, v: number): number {
+    return 0.6 + ((((u * 31 + v * 17) % 0.4) + 0.4) % 0.4);
+  }
+
+  /** A star lands: it joins the sky now (saved on this device), flashes, and draws its line. */
+  private landStar(key: string, at: Vector3): void {
+    const i = this.pendingStars.findIndex((p) => p.key === key);
+    if (i < 0) return;
+    const [p] = this.pendingStars.splice(i, 1);
+    this.store.stars = mergeSky(this.store.stars, [{ night: this.night, x: p!.u, z: p!.v, magnitude: this.magnitudeOf(p!.u, p!.v) }]);
+    this.store.nights = nightsPlayed(this.store.stars);
+    void saveSky(this.store.stars);
+    this.lineAnimStart = this.store.time;
+    this.lineAnimating = true;
+    this.refreshStars();
+    this.addFx('star', at, 'head', 0.26, 0.26, PAYOFF.flashSec);
+    this.addFx('burst', at, 'down', 0.3, 1.6, 1.0);
+    globalsOf(this.world).audio?.sparkle?.(at);
+    const tonight = this.store.stars.filter((s) => s.night === this.night).length;
+    this.store.say(`Star ${tonight} tonight lands on your ceiling`, '^', 2.2);
+  }
+
+  private addFx(kind: 'burst' | 'flash' | 'star', at: Vector3, facing: 'head' | 'down', from: number, to: number, dur: number): void {
+    const { mesh, mat } = kind === 'burst' ? createBurst(kind === 'burst' && facing === 'down' ? COLORS.white : COLORS.firefly) : createFlash();
+    mesh.position.copy(at);
+    mesh.scale.setScalar(from);
+    if (facing === 'down') mesh.rotation.set(Math.PI / 2, 0, 0);
+    this.fxGroup.add(mesh);
+    this.fx.push({ mesh, mat, t: 0, dur, from, to, facing, curve: kind === 'star' ? 'star' : 'grow' });
+  }
+
+  private updateFx(dt: number): void {
+    const hidden = this.store.settings.soundOnly;
+    for (let i = this.fx.length - 1; i >= 0; i--) {
+      const f = this.fx[i]!;
+      f.t += dt;
+      const k = Math.min(1, f.t / f.dur);
+      if (f.curve === 'star') {
+        f.mesh.scale.setScalar(f.from * starFlash(f.t));
+        f.mat.opacity = 1;
+      } else {
+        f.mesh.scale.setScalar(f.from + (f.to - f.from) * easeOutCubic(k));
+        f.mat.opacity = 1 - easeInOutSine(k);
+      }
+      if (f.facing === 'head') f.mesh.quaternion.copy(this.headQuat);
+      f.mesh.visible = !hidden;
+      if (f.t >= f.dur) {
+        this.fxGroup.remove(f.mesh);
+        f.mat.dispose();
+        this.fx.splice(i, 1);
+      }
+    }
   }
 
   private ceilingToWorld(u: number, v: number, y: number): Vector3 {
@@ -381,9 +501,10 @@ export class GameSystem extends createSystem({
     return new Vector3(c.origin.x + c.xAxis.x * u + c.zAxis.x * v, y, c.origin.z + c.xAxis.z * u + c.zAxis.z * v);
   }
 
+  /** Safety net at round end: any star whose flight was cut short still joins the sky. */
   private commitStars(): void {
     if (!this.pendingStars.length) return;
-    const added = this.pendingStars.map((s) => ({ night: this.night, x: s.u, z: s.v, magnitude: 0.6 + ((s.u * 31 + s.v * 17) % 0.4 + 0.4) % 0.4 }));
+    const added = this.pendingStars.map((s) => ({ night: this.night, x: s.u, z: s.v, magnitude: this.magnitudeOf(s.u, s.v) }));
     this.pendingStars = [];
     this.store.stars = mergeSky(this.store.stars, added);
     this.store.nights = nightsPlayed(this.store.stars);
@@ -392,21 +513,45 @@ export class GameSystem extends createSystem({
   }
 
   private refreshStars(): void {
-    const pos = this.stars.geometry.getAttribute('position');
-    const col = this.stars.geometry.getAttribute('color');
     const ceilY = (this.store.roomInfo?.ceilingY ?? 2.5) - 0.03;
     const list = this.store.stars.slice(-400);
     list.forEach((s, i) => {
       const w = this.ceilingToWorld(s.x, s.z, ceilY);
-      pos.setXYZ(i, w.x, w.y, w.z);
       const m = s.magnitude;
-      if (s.night === this.night) col.setXYZ(i, 0.9 * m, 1.0 * m, 0.31 * m);
-      else col.setXYZ(i, m, 0.86 * m, 0.6 * m);
+      const size = 0.34 + 0.24 * m;
+      if (s.night === this.night) this.stars.set(i, w.x, w.y, w.z, size, 0.95 * m + 0.05, 1.0, 0.45 * m);
+      else this.stars.set(i, w.x, w.y, w.z, size * 0.85, m, 0.86 * m, 0.6 * m);
+    });
+    this.stars.setCount(list.length);
+    this.stars.mesh.visible = this.store.roomInfo !== null && !this.store.settings.soundOnly;
+    this.refreshLines(list, ceilY);
+  }
+
+  /** Rebuild the constellation ribbons; the newest line draws itself over PAYOFF.lineSec. */
+  private refreshLines(list = this.store.stars.slice(-400), ceilY = (this.store.roomInfo?.ceilingY ?? 2.5) - 0.03): void {
+    const edges = constellationEdges(list);
+    const pos = this.lines.geometry.getAttribute('position');
+    const col = this.lines.geometry.getAttribute('color');
+    const newest = list.length - 1;
+    const anim = this.lineAnimStart >= 0 ? Math.min(1, (this.store.time - this.lineAnimStart) / PAYOFF.lineSec) : 1;
+    edges.forEach(([a, b], i) => {
+      const sa = list[a]!;
+      const sb = list[b]!;
+      const wa = this.ceilingToWorld(sa.x, sa.z, ceilY - 0.005);
+      const wb = this.ceilingToWorld(sb.x, sb.z, ceilY - 0.005);
+      const k = b === newest ? easeOutCubic(anim) : 1;
+      const q = lineQuad({ x: wa.x, z: wa.z }, { x: wb.x, z: wb.z }, wa.y, 0.045, k);
+      const c = sb.night === this.night ? LINE_TONIGHT : LINE_OLDER;
+      const level = sb.night === this.night ? 0.85 : 0.45;
+      q.forEach((p, j) => {
+        pos.setXYZ(i * 4 + j, p.x, p.y, p.z);
+        col.setXYZ(i * 4 + j, c.r * level, c.g * level, c.b * level);
+      });
     });
     pos.needsUpdate = true;
     col.needsUpdate = true;
-    this.stars.geometry.setDrawRange(0, list.length);
-    this.stars.points.visible = this.store.roomInfo !== null && !this.store.settings.soundOnly;
+    this.lines.geometry.setDrawRange(0, edges.length * 6);
+    this.lines.mesh.visible = this.stars.mesh.visible;
   }
 
   // ---------- per frame ----------
@@ -454,7 +599,9 @@ export class GameSystem extends createSystem({
     // Light animation: idle bob and flicker, billboarded halos, catch flights.
     const hc = s.settings.contrast !== 'off';
     const hidden = s.settings.soundOnly;
+    s.palmBusy = false;
     for (const rt of this.runtimes.values()) {
+      if (rt.flight && (rt.flight.stage === 'pop' || rt.flight.stage === 'toPalm' || rt.flight.stage === 'rest')) s.palmBusy = true;
       const root = rt.visual.root;
       rt.visual.halo.quaternion.copy(this.headQuat);
       rt.visual.ring.quaternion.copy(this.headQuat);
@@ -482,6 +629,11 @@ export class GameSystem extends createSystem({
       const outlined = s.outlined === rt.id;
       const dwell = s.dwellTarget === rt.id;
       this.setRing(rt.id, scanned ? 'scan' : hovered || outlined || dwell ? 'outline' : null);
+    }
+    this.updateFx(delta);
+    if (this.lineAnimating) {
+      this.refreshLines();
+      if (time - this.lineAnimStart >= PAYOFF.lineSec) this.lineAnimating = false;
     }
     this.updateChevron();
     this.mirror();
@@ -511,40 +663,65 @@ export class GameSystem extends createSystem({
     return true;
   }
 
+  /**
+   * The payoff: pop where it hid, arc to your palm trailing sparks, glow on the
+   * palm, then rise to the ceiling and land as a star (see @phengos/core payoff).
+   */
   private fly(rt: LightRuntime, dt: number): void {
     const f = rt.flight!;
     const root = rt.visual.root;
+    const halo = rt.visual.halo;
     f.t += dt;
-    const ease = (x: number) => 1 - Math.pow(1 - Math.min(1, x), 3);
-    if (f.stage === 'toPalm') {
+    if (f.stage === 'pop') {
+      halo.scale.setScalar(flightScale('pop', f.t / PAYOFF.popSec, LIGHT_SIZE, PALM_SIZE));
+      if (f.t >= PAYOFF.popSec) {
+        f.stage = 'toPalm';
+        f.t = 0;
+      }
+    } else if (f.stage === 'toPalm') {
       this.palm(f.hand, this.tmp);
-      const k = ease(f.t / 0.9);
-      root.position.lerpVectors(f.from, this.tmp, k);
-      root.position.y += Math.sin(k * Math.PI) * 0.25;
-      rt.visual.halo.scale.setScalar(0.55 - k * 0.4);
-      if (f.t >= 0.9) {
+      const k = easeOutCubic(f.t / PAYOFF.toPalmSec);
+      const p = arcPoint(f.from, this.tmp, k, 0.35);
+      root.position.set(p.x, p.y, p.z);
+      halo.scale.setScalar(flightScale('toPalm', k, LIGHT_SIZE, PALM_SIZE));
+      if (f.t >= PAYOFF.toPalmSec) {
         f.stage = 'rest';
         f.t = 0;
+        this.addFx('burst', root.position, 'head', 0.1, 0.5, 0.6);
       }
     } else if (f.stage === 'rest') {
       this.palm(f.hand, this.tmp);
       root.position.lerp(this.tmp, 0.3);
-      rt.visual.halo.scale.setScalar(0.16 + Math.sin(f.t * 9) * 0.015);
-      if (f.t >= 0.7) {
+      halo.scale.setScalar(flightScale('rest', f.t / PAYOFF.restSec, LIGHT_SIZE, PALM_SIZE));
+      if (f.t >= PAYOFF.restSec) {
         f.stage = 'rise';
         f.t = 0;
         f.from.copy(root.position);
       }
     } else if (f.stage === 'rise') {
-      const k = ease(f.t / 1.8);
-      root.position.lerpVectors(f.from, f.star, k);
-      rt.visual.halo.scale.setScalar(0.16 + k * 0.2);
-      if (f.t >= 1.8) {
+      const k = easeInOutSine(f.t / PAYOFF.riseSec);
+      const p = arcPoint(f.from, f.star, k, 0.2);
+      root.position.set(p.x, p.y, p.z);
+      halo.scale.setScalar(flightScale('rise', k, LIGHT_SIZE, PALM_SIZE));
+      if (f.t >= PAYOFF.riseSec) {
         f.stage = 'done';
+        f.t = 0;
         root.visible = false;
+        this.landStar(f.starKey, f.star);
       }
     }
-    if (f.stage === 'done') root.visible = false;
+    if (f.stage === 'done') {
+      root.visible = false;
+      // The trail collapses into the new star, then goes.
+      if (f.t < 0.5) f.trail.push(f.star.x, f.star.y, f.star.z);
+      else if (f.trail.points.parent) {
+        this.fxGroup.remove(f.trail.points);
+        f.trail.dispose();
+      }
+      return;
+    }
+    if (f.stage !== 'pop') f.trail.push(root.position.x, root.position.y, root.position.z);
+    f.trail.points.visible = !this.store.settings.soundOnly;
   }
 
   private updateChevron(): void {

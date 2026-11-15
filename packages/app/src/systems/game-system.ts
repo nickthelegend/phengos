@@ -362,6 +362,8 @@ export class GameSystem extends createSystem({
     const { world: star, key: starKey } = this.starPositionFor(rt);
     const trail = createTrail();
     this.fxGroup.add(trail.points);
+    // In flight the light is the closest thing to you: draw it over the panels.
+    rt.visual.halo.renderOrder = 12;
     rt.flight = { from: rt.visual.root.position.clone(), t: 0, stage: 'pop', star, starKey, hand, trail };
     // The pop where it hid: a shock ring and a flash, before it flies to you.
     this.addFx('burst', rt.visual.root.position, 'head', 0.4, 2.2, 0.7);

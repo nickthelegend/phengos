@@ -44,7 +44,7 @@ HACKATHON_SUBMISSION_FORM.md
 
 ## Film
 
-`grokbot/videos/phengos/phengos-film.mp4` (2:38, 1920x1080, 30 fps): the whole game in the Meta Immersive Web
+`grokbot/videos/phengos/phengos-film.mp4` (2:41, 1920x1080, 30 fps): the whole game in the Meta Immersive Web
 Emulator (Quest 3 profile, plus a short Meta VR Glasses section): first launch, onboarding, the catch payoff and the
 constellation growing, all four ways to play plus voice, the accessibility settings, and coming back to the same sky.
 The sound is the app's own synthesised mix. Shot list: `phengos-film.md`. Rebuild it with `packages/app/e2e/film.mjs`

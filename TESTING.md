@@ -97,6 +97,15 @@ npm --prefix packages/core test
 | `payoff.test.ts` | 18 | **Catch payoff** (new Nov 15): the arc starts where the light hid and ends on the palm, lifts mid-flight, clamps; the light pops, shrinks to palm size, pulses, thins as it rises; the whole payoff (catch to settled star) takes 3 to 5 s; the star flash starts at 5x and settles to 1x. **Constellation lines**: each new star adds exactly one line to the nearest earlier star of the same night, earlier lines never change, nights stay separate, no line over 2.6 m, ribbon quads have the given width and draw partway. **Legibility rule**: parses every `font-size` in every UIKitML panel and checks cap height ≥ 0.018 m per metre of viewing distance at 100% text, using the panel scale and distance the app places it at (`PANELS`); no inline font sizes; every panel file covered |
 | `misc.test.ts` | 15 | Hum pitch by height and pulse by aim; direction captions ("hum, left, low"); settings clamping; rounds of 5/8/12; catching once per light by any method; next/back cycling; first input picks the mode; constellation stars; daily seed |
 
+## Film (Nov 15, 2026)
+
+`grokbot/videos/phengos/phengos-film.mp4` (2:41, 1920x1080, 30 fps) is recorded by `packages/app/e2e/film.mjs` from the
+real app in IWER (the dev server started with `--screenshot-width 1920 --screenshot-height 1080`, so the XR canvas is
+16:9) and cut by `packages/app/e2e/film-cut.py` from `e2e/film-plan.json`. Every take is a scripted, real run (hand
+rays, pinches, head turns, eye gaze, the voice test clip); the sound is the app's own mix through the test-only
+`?recordAudio` tap. Checked: contact sheet at 1 frame / 5 s (`phengos-film-contact.jpg`), every caption readable and
+clear of the HUD, nothing cut off, duration under 3:00.
+
 ## Emulator clips (test recordings)
 
 Recorded from the real rendered frames with the CDP screencast (`e2e/record.mjs`, `e2e/record-page.mjs`); captions are
@@ -121,4 +130,5 @@ constellation returning above the same spots across real sessions.
 `?fresh` (ignore saved settings and sky), `?seed=N`, `?round=N` (start at round N, used by the perf run), `?room=paper`
 (force the fallback), `?dumpRoom` (log the room), `?voiceFixture=<wav>` (+ `voiceFixtureDelay` / `voiceFixtureGate`)
 swaps the microphone for a recorded clip fed to the same recogniser, and the `TestSignal` ECS component starts that clip
-during scripted recordings. `window.__phengos` is a read-only inspection handle for the scripts.
+during scripted recordings. `?recordAudio` exposes a recorder on the app's own audio mix (started and read only by the
+film scripts). `window.__phengos` is a read-only inspection handle for the scripts.

@@ -11,7 +11,7 @@ Deadline: **Nov 18, 2026, 12:00 PM PST (Nov 18 20:00 UTC)**. Submitted by the te
 | Division | New Experience (fresh repo, built from Oct 24, 2026) |
 | Platform | Immersive Web SDK (WebXR), submitted as a public URL |
 | Public URL | _(Representative: GitHub Pages URL of `packages/app/dist`)_ |
-| Video | _(Representative: upload `grokbot/videos/phengos/phengos-film.mp4` (2:38, 1920x1080, IWER emulator, app's own sound, captions) to YouTube/Vimeo as public; shot list in `phengos-film.md`)_ |
+| Video | _(Representative: upload `grokbot/videos/phengos/phengos-film.mp4` (2:41, 1920x1080, IWER emulator, app's own sound, captions) to YouTube/Vimeo as public; shot list in `phengos-film.md`)_ |
 | Target launch date | _(Representative)_ |
 | Team | Representative (owner of repo, Pages, video, submission); Nick (non-Representative member, engineering) |
 

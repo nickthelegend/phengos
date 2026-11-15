@@ -1,0 +1,63 @@
+{
+  "segments": [
+    { "take": "start", "in": 0.2, "out": 4.0, "captionsTop": true, "wrap": 430,
+      "captions": [[0, 3.8, "!Most games assume you can see well, reach, and hold a controller."]] },
+    { "take": "launch", "in": 0.0, "out": 22.6,
+      "labels": [[0, 9, "IWER emulator, Quest 3 profile"]],
+      "captions": [
+        [0, 3.6, "!Phengos: paper lights hide in your real room."],
+        [3.6, 8.0, "Catch them any way your body allows. Here: just look and hold for 1 s."],
+        [8.1, 13.3, "Caught. It pops, then flies to your palm."],
+        [13.3, 17.8, "Then it rises to your ceiling..."],
+        [17.8, 22.6, "...and becomes the first star of tonight's constellation."]
+      ] },
+    { "take": "point", "in": 0.0, "out": 18.8,
+      "captions": [
+        [0, 6.0, "Point: a light peeks over the armchair. Depth occlusion hides the rest."],
+        [6.0, 9.9, "Aim the hand ray. Pinch."],
+        [9.9, 14.5, "Up it goes..."],
+        [14.5, 18.8, "...and a line joins the new star to the last one."]
+      ] },
+    { "take": "point", "in": 19.8, "out": 30.0,
+      "captions": [[0, 10.2, "Every catch becomes a star above the spot where that light hid."]] },
+    { "take": "point", "in": 44.6, "out": 52.6,
+      "captions": [[0.4, 8.0, "Five catches later, the figure on your ceiling has grown."]] },
+    { "take": "look", "in": 1.0, "out": 13.0,
+      "captions": [
+        [0, 6.0, "Look (head): hold your view on a light; the ring fills in 1 s (0.5 to 2 s)."],
+        [6.0, 12.0, "Quest 3 has no eye tracking, so this is head-gaze, and the game says so."]
+      ] },
+    { "take": "switch", "in": 0.0, "out": 17.0,
+      "captions": [
+        [0, 8.5, "One switch: the outline steps through the lights, then Hint and Pause."],
+        [8.5, 17.0, "Any pinch, from either hand, catches what is outlined. One movement is enough."]
+      ] },
+    { "take": "voice", "in": 0.0, "out": 11.4,
+      "captions": [
+        [0, 5.5, "Voice, optional: nine words, recognised on the device (Vosk). Nothing is sent."],
+        [5.5, 11.4, "Shown with a recorded test clip saying \"catch next\": one catch, one outline."]
+      ] },
+    { "take": "access", "in": 0.5, "out": 19.5,
+      "captions": [
+        [0, 4.3, "Pause opens every setting. Each one works by pointing, looking or one switch."],
+        [4.3, 8.3, "High contrast: the room redrawn as bold yellow outlines."],
+        [8.3, 13.5, "Text size up to 200%."],
+        [13.5, 19.0, "Big text, bold outlines, and the lights as solid yellow glows."]
+      ] },
+    { "take": "access", "in": 34.5, "out": 46.5,
+      "captions": [
+        [0, 6.5, "Sound only: the lights go dark. Each one hums from where it hides; pitch tells its height."],
+        [6.5, 12.0, "Every sound gets a caption with a direction. Hint pulses the nearest hum."]
+      ] },
+    { "take": "glasses", "in": 2.5, "out": 15.5,
+      "captions": [
+        [0, 6.5, "Meta VR Glasses profile: real eye gaze picks the light, a pinch catches it."],
+        [6.5, 13.0, "Here the mode reads Look (eyes). The black frame is the Glasses' field of view."]
+      ] },
+    { "take": "again", "in": 0.0, "out": 13.0, "fadeOut": 0.8,
+      "captions": [
+        [0, 6.5, "Leave and come back: your stars are still there, saved on this device."],
+        [6.5, 13.0, "!Phengos. Every way to play is a first-class way."]
+      ] }
+  ]
+}

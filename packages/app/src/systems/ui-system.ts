@@ -5,7 +5,7 @@
  * Look dwell and by the switch scanner, not only by a hand-ray pinch or poke.
  */
 import { createSystem, Follower, FollowBehavior, Object3D, Quaternion, UIKit, UIKitMLAsset, Vector3 } from '@iwsdk/core';
-import { type CatchMethod, nextContrast, stepSetting, type PlayMode } from '@phengos/core';
+import { type CatchMethod, nextContrast, PANELS, stepSetting, type PlayMode } from '@phengos/core';
 import { globalsOf, STORE_KEY, type Store } from '../game/store.js';
 import type { Controller } from './game-system.js';
 
@@ -22,7 +22,12 @@ export class UISystem extends createSystem({}) {
   private texts = new Map<string, string>();
   private lastMenuOpen = false;
   private lastPhase = '';
-  private base = { hud: 0.07, tabs: 0.07, card: 0.1, menu: 0.08 };
+  /** Panel scales and distances come from @phengos/core PANELS (tested for legibility). */
+  private base = { hud: PANELS.hud.scale, tabs: PANELS.tabs.scale, card: PANELS.card.scale, menu: PANELS.menu.scale };
+  private countPopUntil = 0;
+  private lastCaught = -1;
+  private starsPopUntil = 0;
+  private lastStars = -1;
   private q = new Quaternion();
   private v = new Vector3();
 
@@ -48,8 +53,8 @@ export class UISystem extends createSystem({}) {
         speed: 2,
       });
     };
-    follow('hud', [0, -0.25, -0.8]);
-    follow('tabs', [0, -0.37, -0.72]);
+    follow('hud', [0, PANELS.hud.height, -PANELS.hud.dist]);
+    follow('tabs', [0, PANELS.tabs.height, -PANELS.tabs.dist]);
 
     const c = (): Controller | undefined => globalsOf(this.world).controller;
     const settings = () => this.store.settings;
@@ -135,6 +140,16 @@ export class UISystem extends createSystem({}) {
     panel.getElementById(id)?.setProperties({ display: v });
   }
 
+  private chipPop(id: string, on: boolean): void {
+    const key = `HUD:${id}:pop`;
+    const v = String(on);
+    if (this.texts.get(key) === v) return;
+    this.texts.set(key, v);
+    this.hud.getElementById(id)?.setProperties(
+      on ? { borderColor: '#e6ff4f', borderWidth: 5, backgroundColor: '#1d2a10' } : { borderColor: '#2a2d33', borderWidth: 2, backgroundColor: '#050608' },
+    );
+  }
+
   update(): void {
     const s = this.store;
     const st = s.settings;
@@ -145,13 +160,24 @@ export class UISystem extends createSystem({}) {
     this.menu.scale.setScalar(this.base.menu * Math.min(scale, 1.4));
 
     const inGame = s.inXR && s.phase !== 'boot';
-    this.hud.visible = inGame;
+    // The menu has its own title and every value, so the HUD steps aside while it is open.
+    this.hud.visible = inGame && !s.menuOpen;
     this.tabs.visible = inGame && (s.phase === 'playing' || s.phase === 'onboarding') && !s.menuOpen;
 
     // HUD text.
     const round = s.round;
     const count = round && s.phase !== 'onboarding' ? `${round.caught} / ${round.total}` : s.phase === 'onboarding' ? 'hello' : '...';
     this.text(this.hud, 'hud-count', count);
+    // The payoff reaches the HUD too: the count pops on every catch, the star
+    // count pops when the star lands on your ceiling.
+    const caughtNow = s.phase === 'onboarding' ? 0 : (round?.caught ?? 0);
+    if (caughtNow > this.lastCaught && this.lastCaught >= 0) this.countPopUntil = s.time + 0.9;
+    this.lastCaught = caughtNow;
+    if (s.stars.length > this.lastStars && this.lastStars >= 0) this.starsPopUntil = s.time + 1.1;
+    this.lastStars = s.stars.length;
+    this.text(this.hud, 'hud-stars', `${s.stars.length}`);
+    this.chipPop('hud-count-chip', s.time < this.countPopUntil);
+    this.chipPop('hud-stars-chip', s.time < this.starsPopUntil);
     const modeLabel = !s.modeChosen ? 'Any way works' : st.mode === 'point' ? 'Point (hands)' : st.mode === 'look' ? s.lookLabel : 'One switch';
     this.text(this.hud, 'hud-mode', st.soundOnly ? `${modeLabel} - sound only` : modeLabel);
     const showCaption = s.time < s.caption.until;
@@ -167,7 +193,7 @@ export class UISystem extends createSystem({}) {
     const cardPhase = s.phase === 'onboarding' || s.phase === 'round-end' || s.phase === 'night-end';
     if (s.phase !== this.lastPhase) {
       this.lastPhase = s.phase;
-      if (cardPhase && !s.menuOpen) this.place(this.card, true, 0.06, 1.25);
+      if (cardPhase && !s.menuOpen) this.place(this.card, true, PANELS.card.height, PANELS.card.dist);
       else this.place(this.card, false);
       if (s.phase === 'onboarding') {
         this.text(this.card, 'card-eyebrow', 'PHENGOS');
@@ -191,9 +217,9 @@ export class UISystem extends createSystem({}) {
     // Menu.
     if (s.menuOpen !== this.lastMenuOpen) {
       this.lastMenuOpen = s.menuOpen;
-      this.place(this.menu, s.menuOpen, -0.08, 0.85);
+      this.place(this.menu, s.menuOpen, PANELS.menu.height, PANELS.menu.dist);
       if (s.menuOpen) this.place(this.card, false);
-      else if (cardPhase) this.place(this.card, true, 0.06, 1.25);
+      else if (cardPhase) this.place(this.card, true, PANELS.card.height, PANELS.card.dist);
     }
     if (s.menuOpen) {
       this.text(this.menu, 'dwell-val', `${st.dwellSec.toFixed(2).replace(/0$/, '')} s`);

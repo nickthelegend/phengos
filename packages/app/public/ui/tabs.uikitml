@@ -36,7 +36,7 @@
     color: #e6ff4f;
   }
   .label {
-    font-size: 26;
+    font-size: 28;
     font-weight: 600;
     color: #fafafa;
   }

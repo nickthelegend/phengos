@@ -24,7 +24,7 @@
   }
   .eyebrow {
     font-family: ptmono;
-    font-size: 20;
+    font-size: 24;
     letter-spacing: 3;
     color: #e6ff4f;
   }
@@ -34,7 +34,7 @@
     color: #fafafa;
   }
   .body {
-    font-size: 26;
+    font-size: 28;
     color: #d9dbe0;
     text-align: center;
   }
@@ -60,7 +60,7 @@
     color: #e6ff4f;
   }
   .tile-label {
-    font-size: 22;
+    font-size: 26;
     color: #fafafa;
   }
 </style>

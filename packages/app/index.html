@@ -41,6 +41,8 @@
       details[open] summary { margin-bottom: 10px; }
       details[open] summary::after { content: '–'; }
       #status { font-family: PTMono, monospace; font-size: 0.95rem; color: #d9dbe0; margin: 14px 0 0; overflow-wrap: anywhere; }
+      /* Big screens (a desktop tab, a film frame): the sign scales up with the text. */
+      @media (min-width: 1400px) and (min-height: 900px) { html { font-size: 140%; } .sign { max-width: 760px; padding: 36px 34px; } }
     </style>
   </head>
   <body>

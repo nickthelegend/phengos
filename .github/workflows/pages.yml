@@ -1,0 +1,59 @@
+# Publishes Phengos to GitHub Pages: the landing sign at the root and the WebXR app at /app/
+# (https://nickthelegend.github.io/phengos/ and .../phengos/app/). The Vosk model for the
+# optional voice mode is fetched at build time (checksum-pinned) and served from the same origin.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: |
+          npm ci --prefix packages/core
+          npm ci --prefix packages/app
+      - name: Unit tests
+        run: npm --prefix packages/core test
+      - name: Typecheck
+        run: npm --prefix packages/app run typecheck
+      - name: Voice model (Apache-2.0, checksum-pinned)
+        run: ./scripts/fetch-vosk-model.sh
+      - name: Build the app for /phengos/app/
+        working-directory: packages/app
+        run: npx vite build --base /phengos/app/
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/app
+          cp -R packages/landing/. _site/
+          cp -R packages/app/dist/. _site/app/
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

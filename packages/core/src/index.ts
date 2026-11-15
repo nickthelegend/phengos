@@ -10,3 +10,5 @@ export * from './caption.js';
 export * from './settings.js';
 export * from './round.js';
 export * from './constellation.js';
+export * from './payoff.js';
+export * from './legibility.js';

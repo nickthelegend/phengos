@@ -1,5 +1,5 @@
 {
-  "attemptedAt": "2026-10-25T14:54:00.000Z",
+  "attemptedAt": "2026-11-15T13:30:55.000Z",
   "status": "ran",
   "node": "v26.5.0",
   "dependencies": {
@@ -8,8 +8,8 @@
   },
   "unitTests": {
     "suite": "packages/core",
-    "tests": 84,
-    "passed": 84,
+    "tests": 102,
+    "passed": 102,
     "failed": 0
   },
   "typecheck": "passed",
@@ -135,5 +135,6 @@
     "device": "metaQuest3",
     "environment": "sunlit_living_room"
   },
-  "artifacts": "All scenario JSON files, perf-report.json, contrast-yellow.png, and glasses-fov.png freshly generated and verified."
+  "artifacts": "All scenario JSON files, perf-report.json, contrast-yellow.png, and glasses-fov.png freshly generated and verified.",
+  "note": "Nov 15 run: scenarios ran in pairs with a fresh dev server between pairs. In one pair the managed Chromium page was lost during contrast (target_unavailable, the host was under memory pressure); contrast was re-run alone on a fresh server and passed 5/5. 46/46 checks pass."
 }

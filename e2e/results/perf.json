@@ -1,31 +1,31 @@
 {
   "scenario": "perf",
-  "seconds": 20.49,
+  "seconds": 21.608,
   "passed": 6,
   "failed": 0,
   "results": [
     {
-      "name": "600-frame run recorded (634 frames)",
+      "name": "600-frame run recorded (635 frames)",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "p95 CPU <= 4 ms (relative proxy): 1.4 ms",
+      "name": "p95 CPU <= 4 ms (relative proxy): 1.5 ms",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "draw calls per stereo frame <= 100 (shared M1 gate): max 86",
+      "name": "draw calls per stereo frame <= 100 (shared M1 gate): max 98",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "draw calls per eye view <= 70 (spec gate): 43",
+      "name": "draw calls per eye view <= 70 (spec gate): 49",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "triangles <= 120k: max 21092",
+      "name": "triangles <= 120k: max 23340",
       "ok": true,
       "detail": ""
     },

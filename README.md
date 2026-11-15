@@ -20,7 +20,8 @@ Experience**. Built with the Meta Immersive Web SDK (WebXR, `immersive-ar`), han
 | **High contrast** | Your real planes and furniture are redrawn as thick yellow (or white) outlines over a dimming layer, and the lights become large solid yellow glows. Geometry only: apps cannot read or recolour passthrough pixels. |
 | **Voice** | On "Turn on voice" (a user gesture), mic → **Vosk** (WASM in a Worker, `@lichess-org/vosk-browser`, Apache-2.0) with the small English model served from our own host and a fixed grammar: catch, next, back, hint, repeat, pause, resume, menu, louder (+ `[unk]`). A live transcript chip shows what was heard. No audio is stored or sent. Cloud `SpeechRecognition` is detected and logged but not used (it would send audio away). If the model or mic is missing, the chip says "Voice unavailable on this device" and play continues. |
 | **Seated, within 2 ft** | Nothing to reach for: lights are caught at a distance. Pause and Hint tabs stay at the bottom of your view; a palm-up wrist chip opens the menu too. |
-| **A reason to come back** | Nights of three rounds (5, 8, 12 lights) from a daily seed. Each caught light lands on your palm, then rises to your ceiling and becomes a star. The constellation is saved on the device (IndexedDB) in ceiling-plane coordinates, so it returns above the same spots, and grows night after night. |
+| **Every catch pays off** | The light pops where it hid (a shock ring and a flash), flies in an arc to your palm trailing sparks, glows there, then rises to your ceiling and lands as a star with a flash and a rising sparkle, and a glowing line joins it to the nearest star caught before it tonight. About four seconds, the same for every way of catching. The HUD counts lights and stars. |
+| **A reason to come back** | Nights of three rounds (5, 8, 12 lights) from a daily seed. Each star is saved on the device (IndexedDB) the moment it lands, in ceiling-plane coordinates, so it returns above the same spots, and the constellation grows night after night (tonight's lines in firefly yellow, older nights warm). |
 | **Fallback** | No room scan within 5 s → a virtual paper room of three folding screens around you, and the game still completes. |
 
 Settings (all on the first screen of the menu): way to play, dwell time, scan speed, text size (100–200%), hum on/off,
@@ -29,15 +30,26 @@ sound only, contrast (off / yellow / white), voice.
 ## Repository
 
 ```
-packages/core     pure TypeScript game logic + Vitest (room model, hiding spots, dwell, scanner, voice grammar, hum, captions)
+packages/core     pure TypeScript game logic + Vitest (room model, hiding spots, dwell, scanner, voice grammar, hum, captions,
+                  catch payoff and constellation lines, the panel legibility rule)
 packages/app      the IWSDK app (systems in src/systems, UIKitML panels in public/ui, e2e in e2e/)
 packages/landing  short sign in the brand (wayfinding signage), plus an evidence page. The hero plays the real emulator clip with captions
 scripts/          fetch-vosk-model.sh (downloads + checks + repacks the Vosk model)
-TESTING.md        real test counts and emulator gates (84 unit tests, 46 emulator checks, M1 numbers)
+TESTING.md        real test counts and emulator gates (102 unit tests, emulator checks, M1 numbers)
+docs/JUDGE-NOV15.md  the Nov 15 headset-judge pass: scores before and after, what changed
 e2e/results/      JSON results and screenshots from the emulator run
 ASSETS.md         every asset and licence
 HACKATHON_SUBMISSION_FORM.md
 ```
+
+## Film
+
+`grokbot/videos/phengos/phengos-film.mp4` (2:38, 1920x1080, 30 fps): the whole game in the Meta Immersive Web
+Emulator (Quest 3 profile, plus a short Meta VR Glasses section): first launch, onboarding, the catch payoff and the
+constellation growing, all four ways to play plus voice, the accessibility settings, and coming back to the same sky.
+The sound is the app's own synthesised mix. Shot list: `phengos-film.md`. Rebuild it with `packages/app/e2e/film.mjs`
+(takes, dev server started with `--screenshot-width 1920 --screenshot-height 1080`) and `packages/app/e2e/film-cut.py`
+(trim, captions, join; `e2e/film-plan.json`).
 
 ## Emulator clips
 

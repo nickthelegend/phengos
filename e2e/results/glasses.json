@@ -1,6 +1,6 @@
 {
   "scenario": "glasses",
-  "seconds": 18.875,
+  "seconds": 19.687,
   "passed": 7,
   "failed": 0,
   "results": [
@@ -32,7 +32,7 @@
     {
       "name": "HUD and tabs inside the Glasses FoV (with 3 deg margin)",
       "ok": true,
-      "detail": "{\"hud\":{\"h\":0.5678708423650649,\"v\":-17.42582980823419},\"tabs\":{\"h\":0.5678716900903041,\"v\":-27.300591441315955}}"
+      "detail": "{\"hud\":{\"h\":0.6009929080781502,\"v\":-17.700202071631725},\"tabs\":{\"h\":0.6009926473744389,\"v\":-29.363828831430073}}"
     },
     {
       "name": "zero console errors",

@@ -2,25 +2,27 @@
 
 Two layers, both run against real code: pure-logic unit tests (Vitest), and end-to-end runs of the real app in the
 Meta Immersive Web Emulator (IWER) driven through the IWSDK CLI (the same surface as the IWSDK MCP tools) with emulated
-hands, gaze and synthetic rooms. No app logic is mocked. The counts below were measured fresh on **Oct 25, 2026**.
+hands, gaze and synthetic rooms. No app logic is mocked. The counts below were measured fresh on **Nov 15, 2026** (the Oct 25 run is kept for reference).
 
-## Fresh emulator run: 46 checks passed, 0 failed (Oct 25, 2026, 14:54 UTC)
+## Fresh emulator run: 46 checks passed, 0 failed (Nov 15, 2026, 13:31 UTC)
 
-The complete end-to-end suite ran successfully in the Meta Immersive Web Emulator (IWER) using the IWSDK CLI in agent
-mode (headless Chromium). All 10 scenarios completed with 46 passing checks and zero failures. Performance gates were
-met across the 600-frame benchmark.
+Re-run after the Nov 15 pass (bigger lights, the catch payoff with trails, flashes and constellation lines, bigger
+panels). All 10 scenarios pass: 46 checks, 0 failures. The Mac was under heavy memory pressure, so scenarios ran in
+pairs with a fresh dev server between pairs. Once, the managed Chromium page was lost in the middle of `contrast`
+(the second scenario of its pair, `target_unavailable`); `contrast` was re-run alone on a fresh server and passed 5/5.
+The payoff effects add a few draw calls while a light is in flight; the gates still hold.
 
-| Metric | Result | Gate | Status |
-|---|---|---|---|
-| CPU per frame, p95 | **1.4 ms** (p50 1.2 ms, max 2.1 ms) | ≤ 4 ms | Met ✓ |
-| Draw calls per stereo frame | **86** | ≤ 100 (shared M1 gate) | Met ✓ |
-| Draw calls per eye view | **43** (IWER renders two views as separate passes) | ≤ 70 (spec gate) | Met ✓ |
-| Triangles | **21,092** max | ≤ 120k | Met ✓ |
+| Metric | Result (Nov 15) | Oct 25 | Gate | Status |
+|---|---|---|---|---|
+| CPU per frame, p95 | **1.5 ms** (p50 1.2 ms, max 3.3 ms) | 1.4 ms | ≤ 4 ms | Met ✓ |
+| Draw calls per stereo frame | **98** max (during catch effects) | 86 | ≤ 100 (shared M1 gate) | Met ✓ |
+| Draw calls per eye view | **49** (IWER renders two views as separate passes) | 43 | ≤ 70 (spec gate) | Met ✓ |
+| Triangles | **23,340** max | 21,092 | ≤ 120k | Met ✓ |
 
-Setup used Node **26.5.0**. Both `npm ci --prefix packages/core` and `npm ci --prefix packages/app` succeeded.
-`npm --prefix packages/app run typecheck` and `npm --prefix packages/app run build` passed cleanly (with standard font
-resolution and vendor bundle-size warnings). The local Vosk archive in `packages/app/public/models/` was verified and
-loaded by the browser runtime Worker.
+Unit tests: 102/102 (`npm --prefix packages/core test`), `npm --prefix packages/app run typecheck` clean, `vite build`
+clean (bundle-size warnings only). Results: `e2e/results/*.json`, `e2e/results/run-status.json`.
+
+### Oct 25, 2026 run (for reference)
 
 The heavy-session shell acquired the slot and installed an EXIT trap before startup:
 
@@ -70,16 +72,16 @@ Silicon under IWER, **not a headset measurement**. `e2e/results/perf-report.json
 
 | Metric | Result | Gate | Status |
 |---|---|---|---|
-| CPU per frame, p95 | **1.4 ms** (p50 1.2 ms, max 2.1 ms) | ≤ 4 ms | Met ✓ |
-| Draw calls per stereo frame | **86** | ≤ 100 (shared M1 gate) | Met ✓ |
-| Draw calls per eye view | **43** | ≤ 70 (spec). IWER renders the two views as separate passes, so every draw counts twice per frame. | Met ✓ |
-| Triangles | **21,092** max | ≤ 120k | Met ✓ |
+| CPU per frame, p95 | **1.5 ms** (p50 1.2 ms, max 3.3 ms) | ≤ 4 ms | Met ✓ |
+| Draw calls per stereo frame | **98** | ≤ 100 (shared M1 gate) | Met ✓ |
+| Draw calls per eye view | **49** | ≤ 70 (spec). IWER renders the two views as separate passes, so every draw counts twice per frame. | Met ✓ |
+| Triangles | **23,340** max | ≤ 120k | Met ✓ |
 
-The 2.1 ms figure is the single highest frame. The gate is the p95 of the 600-frame window (634 frames were recorded).
+The 3.3 ms figure is the single highest frame. The gate is the p95 of the 600-frame window (635 frames were recorded).
 
-Each light is one billboard draw call (a paper lantern painted into its own glow), so 12 lights cost 12 calls per view.
+Each light is one billboard draw call (a paper lantern painted into its own glow), so 12 lights cost 12 calls per view. The ceiling stars and the constellation lines are one draw call each; a light in flight adds its spark trail, and each pop or landing adds a short-lived ring or flash.
 
-## Unit tests (`packages/core`, Vitest): 84 passed, 0 failed
+## Unit tests (`packages/core`, Vitest): 102 passed, 0 failed (Nov 15, 2026)
 
 ```bash
 npm --prefix packages/core test
@@ -92,6 +94,7 @@ npm --prefix packages/core test
 | `scan.test.ts` | 6 | Scan cycling and wrap; keeps the highlight when the list changes; moves on when the highlighted light is caught; reaches Hint and Pause; adjustable speed; empty list |
 | `voice.test.ts` | 3 | Grammar is exactly the nine commands plus `[unk]`; recogniser output maps to commands in order; `[unk]` and other words are dropped |
 | `room.test.ts` | 6 | Planes classified by orientation and height (floor, ceiling, walls, surfaces), no-ceiling and empty fallbacks, plane area, oriented-box helpers |
+| `payoff.test.ts` | 18 | **Catch payoff** (new Nov 15): the arc starts where the light hid and ends on the palm, lifts mid-flight, clamps; the light pops, shrinks to palm size, pulses, thins as it rises; the whole payoff (catch to settled star) takes 3 to 5 s; the star flash starts at 5x and settles to 1x. **Constellation lines**: each new star adds exactly one line to the nearest earlier star of the same night, earlier lines never change, nights stay separate, no line over 2.6 m, ribbon quads have the given width and draw partway. **Legibility rule**: parses every `font-size` in every UIKitML panel and checks cap height ≥ 0.018 m per metre of viewing distance at 100% text, using the panel scale and distance the app places it at (`PANELS`); no inline font sizes; every panel file covered |
 | `misc.test.ts` | 15 | Hum pitch by height and pulse by aim; direction captions ("hum, left, low"); settings clamping; rounds of 5/8/12; catching once per light by any method; next/back cycling; first input picks the mode; constellation stars; daily seed |
 
 ## Emulator clips (test recordings)

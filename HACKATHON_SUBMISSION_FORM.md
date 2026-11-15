@@ -11,7 +11,7 @@ Deadline: **Nov 18, 2026, 12:00 PM PST (Nov 18 20:00 UTC)**. Submitted by the te
 | Division | New Experience (fresh repo, built from Oct 24, 2026) |
 | Platform | Immersive Web SDK (WebXR), submitted as a public URL |
 | Public URL | _(Representative: GitHub Pages URL of `packages/app/dist`)_ |
-| Video | _(Representative: public YouTube/Vimeo, under 3 min, built from the emulator clips with captions)_ |
+| Video | _(Representative: upload `grokbot/videos/phengos/phengos-film.mp4` (2:38, 1920x1080, IWER emulator, app's own sound, captions) to YouTube/Vimeo as public; shot list in `phengos-film.md`)_ |
 | Target launch date | _(Representative)_ |
 | Team | Representative (owner of repo, Pages, video, submission); Nick (non-Representative member, engineering) |
 
@@ -38,8 +38,11 @@ nothing, the scanner starts by itself.
 
 Every light hums from where it hides: higher means nearer the ceiling, and the hum quickens as you aim closer, so you can
 play by sound alone. Every sound is captioned with a direction ("hum, left, low"). High contrast redraws your real walls
-and furniture as bold yellow outlines on black. Caught lights land on your palm, then rise to your ceiling as stars, and
-the constellation grows every night you play.
+and furniture as bold yellow outlines on black.
+
+Every catch pays off: the light pops where it hid, flies in an arc to your palm, glows there, then rises to your ceiling
+and lands as a star, and a glowing line joins it to tonight's constellation. The sky is saved on your headset, so it is
+still there tomorrow, and it grows every night you play.
 
 **How we built it.** IWSDK 1.1 (WebXR `immersive-ar`) with scene understanding (`XRPlane`, `XRMesh` semantic labels),
 `DepthOccludable` in hard mode on the lights only, IWSDK eye gaze on the Glasses profile, our own head-gaze and dwell
@@ -63,7 +66,7 @@ Hand ray + pinch through IWSDK `RayInteractable` (`Pressed` on the light); poke 
 | Innovation & Creativity | Hide-and-seek inside your own room through depth occlusion; four equal input modes chosen by what you do first; a ceiling constellation that grows nightly (repeat use) |
 | Experience Design | Seated, within 2 ft; first catch in under 10 s with no text wall; purposeful passthrough (your furniture hides the lights); FoV-aware HUD checked against the Glasses' view |
 | Technical Implementation | Scene understanding → visibility-checked hiding spots; depth occlusion; IWSDK eye gaze on the Glasses; own head-gaze on Quest; Vosk grammar voice; frame budget gate (see TESTING.md) |
-| Polish & Presentation | Paper-lantern glow, synthesised hums and chimes, captions everywhere, an honest emulator video showing all four modes |
+| Polish & Presentation | Paper lanterns readable from your seat, a four-second payoff on every catch (pop, palm, star, line), synthesised hums, chimes and sparkles, every label at least 1° cap height (tested), captions everywhere, an honest 1080p emulator film with the app's own sound showing all four modes |
 
 ## Special award it aims at: Best Accessibility Forward Experience
 

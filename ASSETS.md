@@ -22,5 +22,5 @@ speech synthesis. Regenerate them whenever a panel's text changes.
 
 ## Landing hero clip (Nov 15, 2026)
 
-`packages/landing/media/phengos-whoa.mp4` (26.5 s, 1280x720) is cut from the film takes (real emulator frames, the
+`packages/landing/media/phengos-whoa.mp4` (26.9 s, 1280x720) is cut from the film takes (real emulator frames, the
 app's own sound); captions are in `phengos-whoa.vtt`, not burned in.

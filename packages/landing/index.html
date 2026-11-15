@@ -237,17 +237,18 @@
         });
       });
 
-      if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function') {
-        document.body.classList.add('has-speech');
-        document.querySelectorAll('.listen').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var section = btn.closest('section') || btn.closest('footer');
-            var text = Array.prototype.map.call(section.querySelectorAll('h1, h2, p'), function (n) { return n.textContent; }).join('. ');
-            speechSynthesis.cancel();
-            speechSynthesis.speak(new SpeechSynthesisUtterance(text.replace(/\s+/g, ' ').trim()));
-          });
+      // "Listen" plays a recording of the sign, voiced ahead of time with Chatterbox
+      // (media/listen/, generated from this page's text). No browser speech synthesis.
+      var player = null;
+      document.body.classList.add('has-speech');
+      document.querySelectorAll('.listen').forEach(function (btn, i) {
+        btn.addEventListener('click', function () {
+          if (player) player.pause();
+          player = new Audio('media/listen/index-' + i + '.mp3');
+          var play = player.play();
+          if (play && play.catch) play.catch(function () { btn.textContent = 'Audio unavailable'; });
         });
-      }
+      });
     })();
   </script>
 </body>

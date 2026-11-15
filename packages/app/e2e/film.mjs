@@ -52,8 +52,16 @@ function palmSpot(p) {
   return { x: HEAD.x + fx * 0.42 - fz * 0.15, y: HEAD.y - 0.21, z: HEAD.z + fz * 0.42 + fx * 0.15 };
 }
 
+/**
+ * Hold the right hand out, palm turned up toward your face (about 50 degrees from flat), to
+ * receive the light. A flat palm-up hand is the wrist-menu gesture, so this one is tilted.
+ */
 async function palmUp(p, dur = 0.5) {
-  cli('xr animate-to', { device: 'hand-right', position: palmSpot(p), orientation: { fingers: 'forward', palm: 'up' }, duration: dur, easing: 'minimum-jerk' });
+  const dx = p.x - HEAD.x, dz = p.z - HEAD.z, l = Math.hypot(dx, dz) || 1;
+  const fx = dx / l, fz = dz / l;
+  const fingers = [fx * 0.65, 0.76, fz * 0.65];
+  const palm = [-fx * 0.76, 0.65, -fz * 0.76];
+  cli('xr animate-to', { device: 'hand-right', position: palmSpot(p), orientation: { fingers, palm }, duration: dur, easing: 'minimum-jerk' });
   await sleep(dur * 1000 + 50);
 }
 

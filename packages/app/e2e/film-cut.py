@@ -45,12 +45,12 @@ def wrap(text, font, width):
     return lines
 
 
-def caption_png(text, path):
+def caption_png(text, path, wrap_width=None):
     """A lower-left caption: night box, firefly rule, white Lexend. A leading '!' sets it in bold."""
     bold = text.startswith('!')
     text = text.lstrip('!')
     font = lexend_b if bold else lexend
-    lines = wrap(text, font, WRAP)
+    lines = wrap(text, font, wrap_width or WRAP)
     lh = 50
     bw = int(max(font.getlength(l) for l in lines)) + 56
     bh = lh * len(lines) + 34
@@ -111,7 +111,7 @@ for i, seg in enumerate(plan['segments']):
     overlays = []
     for k, (t0, t1, text) in enumerate(seg.get('captions', [])):
         p = os.path.join(work, f's{i}c{k}.png')
-        caption_png(text, p)
+        caption_png(text, p, seg.get('wrap'))
         overlays.append((p, t0, min(t1, dur), 'caption-top' if seg.get('captionsTop') else 'caption'))
     for k, (t0, t1, text) in enumerate(seg.get('labels', [])):
         p = os.path.join(work, f's{i}l{k}.png')
